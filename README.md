@@ -98,9 +98,29 @@ ctk mcp --port 8080
 | `CTK_ENABLE_WRITES` | Set to `true` to enable mutation tools | No (defaults to read-only) |
 | `CTK_DISABLED_TOOLS` | Comma-separated tool names to hide from AI agents | No |
 
+### API Token Scopes
+
+Create a **Confluence** app token at [id.atlassian.com](https://id.atlassian.com/manage-profile/security/api-tokens) with granular scopes. Run `ctk auth` to see the full recommended scope list, or use these:
+
+**Read-only (8 scopes):**
+```
+read:space:confluence, read:page:confluence, read:folder:confluence,
+read:hierarchical-content:confluence, read:comment:confluence,
+read:label:confluence, read:attachment:confluence, search:confluence
+```
+
+**Full access (add these 6):**
+```
+write:page:confluence, write:folder:confluence, write:comment:confluence,
+write:label:confluence, delete:page:confluence, delete:folder:confluence
+```
+
 ### Write Gating & Security
 
-**Safe Defaults:** The `ctk mcp` server starts in read-only mode. Mutation actions (create, update, delete, move) are only registered when `CTK_ENABLE_WRITES=true` is set.
+**Two-layer safety model:**
+
+1. **Token scopes** — granular Atlassian scopes control which APIs the token can call (403 if missing)
+2. **Write gating** — mutation tools are only registered when `CTK_ENABLE_WRITES=true` is set (read-only by default)
 
 **Explicit Tool Denial:** Even with writes enabled, you can explicitly deny the AI agent access to any tool:
 

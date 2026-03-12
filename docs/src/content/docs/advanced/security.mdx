@@ -33,13 +33,35 @@ variables instead of the file:
 
 Environment variables take precedence over stored credentials.
 
-## Write Gating
+## Two-Layer Safety Model
+
+ctk provides defense-in-depth for AI agent access through two independent security layers.
+
+### Layer 1: Token Scopes
+
+ctk uses Atlassian's granular API token scopes. Create a **Confluence** app token at
+[id.atlassian.com](https://id.atlassian.com/manage-profile/security/api-tokens) and select
+only the scopes you need.
+
+Run `ctk auth` to see the full recommended scope list, or refer to the
+[Configuration guide](/getting-started/configuration/).
+
+**Read-only (8 scopes):** Spaces, pages, folders, children/ancestors, comments, labels,
+attachments, and CQL search.
+
+**Full access (add 6 write/delete scopes):** Create/update pages and folders, add comments
+and labels, delete pages and folders.
+
+If a scope is missing, the Confluence API returns 403 — the operation is blocked at the
+API level before ctk even processes the response.
+
+### Layer 2: Write Gating
 
 Write operations (create, update, delete, move pages/folders; add/remove
 labels; add comments) are **disabled by default**.
 
 To enable writes, set `CTK_ENABLE_WRITES=true`. This is an explicit opt-in
-to prevent accidental modifications.
+to prevent accidental modifications — even if the token has write scopes.
 
 When writes are disabled:
 - Tool descriptions reflect only read actions

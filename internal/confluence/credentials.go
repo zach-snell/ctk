@@ -102,6 +102,28 @@ func LoadCredentialsFromEnv() *Credentials {
 	}
 }
 
+// ScopeReadOnly contains the granular scopes required for read-only access.
+var ScopeReadOnly = []string{
+	"read:space:confluence",
+	"read:page:confluence",
+	"read:folder:confluence",
+	"read:hierarchical-content:confluence",
+	"read:comment:confluence",
+	"read:label:confluence",
+	"read:attachment:confluence",
+	"search:confluence",
+}
+
+// ScopeWrite contains the additional granular scopes for write operations.
+var ScopeWrite = []string{
+	"write:page:confluence",
+	"write:folder:confluence",
+	"write:comment:confluence",
+	"write:label:confluence",
+	"delete:page:confluence",
+	"delete:folder:confluence",
+}
+
 // InteractiveLogin prompts the user for credentials and stores them.
 func InteractiveLogin() error {
 	reader := bufio.NewReader(os.Stdin)
@@ -112,6 +134,22 @@ func InteractiveLogin() error {
 	fmt.Println()
 	fmt.Println("Create an API Token at:")
 	fmt.Println("  https://id.atlassian.com/manage-profile/security/api-tokens")
+	fmt.Println()
+	fmt.Println("Select \"Confluence\" as the app, then add these scopes:")
+	fmt.Println()
+	fmt.Println("  Read-only (8 scopes):")
+	for _, s := range ScopeReadOnly {
+		fmt.Printf("    %s\n", s)
+	}
+	fmt.Println()
+	fmt.Println("  Write access (add these 6 for full access):")
+	for _, s := range ScopeWrite {
+		fmt.Printf("    %s\n", s)
+	}
+	fmt.Println()
+	fmt.Println("Write tools are only registered when CTK_ENABLE_WRITES=true is set.")
+	fmt.Println("To explicitly deny tools, use:")
+	fmt.Println("  export CTK_DISABLED_TOOLS=\"manage_folders,manage_labels\"")
 	fmt.Println()
 
 	fmt.Print("Confluence domain (e.g., 'mycompany' for mycompany.atlassian.net): ")

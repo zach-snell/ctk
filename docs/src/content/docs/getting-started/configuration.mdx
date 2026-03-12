@@ -19,6 +19,41 @@ them against the Confluence API, and stores them locally.
 <Aside type="tip">
 Create an API token at
 [https://id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens).
+Select **Confluence** as the app and add granular scopes — `ctk auth` prints the full list.
+</Aside>
+
+### API Token Scopes
+
+Select "Confluence" as the app, then add granular scopes:
+
+<Tabs>
+<TabItem label="Read-only (8 scopes)">
+```
+read:space:confluence
+read:page:confluence
+read:folder:confluence
+read:hierarchical-content:confluence
+read:comment:confluence
+read:label:confluence
+read:attachment:confluence
+search:confluence
+```
+</TabItem>
+<TabItem label="Full access (add 6 more)">
+```
+write:page:confluence
+write:folder:confluence
+write:comment:confluence
+write:label:confluence
+delete:page:confluence
+delete:folder:confluence
+```
+</TabItem>
+</Tabs>
+
+<Aside type="caution">
+Write operations require both the write token scopes **and** `CTK_ENABLE_WRITES=true`.
+Token scopes alone are not enough — the env var gate is a second safety layer.
 </Aside>
 
 ## Credentials File
