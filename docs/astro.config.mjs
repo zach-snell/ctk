@@ -76,6 +76,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Usage Examples', slug: 'guides/examples' },
 						{ label: 'Storage Format', slug: 'guides/storage-format' },
+						{ label: 'CQL Guide', slug: 'guides/cql-guide' },
 					],
 				},
 				{
@@ -83,6 +84,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Architecture', slug: 'advanced/architecture' },
 						{ label: 'Security', slug: 'advanced/security' },
+						{ label: 'Docker Deployment', slug: 'advanced/docker' },
 						{ label: 'Development', slug: 'advanced/development' },
 					],
 				},

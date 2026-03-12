@@ -1,0 +1,175 @@
+---
+title: CQL Guide
+description: Master Confluence Query Language for searching content with ctk.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+CQL (Confluence Query Language) is used by `manage_search` to find content. This guide covers the most useful patterns for both CLI and MCP usage.
+
+## Search Modes
+
+ctk supports two search modes:
+
+| Mode | Description | When to Use |
+|------|-------------|-------------|
+| **CQL** (`cql` action) | Structured queries with field/operator/value | Precise filtering by space, type, label, date |
+| **Quick** (`quick` action) | Plain text search | Simple keyword searches, like the Confluence search bar |
+
+## Basic CQL Syntax
+
+CQL queries follow the pattern: `field operator value`
+
+```
+type = page AND space = "DEV"
+```
+
+Use `AND`, `OR` to combine conditions, and `ORDER BY` for sorting.
+
+## Operators
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `=` | Exact match | `type = "page"` |
+| `!=` | Not equal | `type != "comment"` |
+| `~` | Contains text | `title ~ "meeting notes"` |
+| `!~` | Does not contain | `title !~ "draft"` |
+| `IN` | Match any in list | `space IN ("DEV", "TEAM")` |
+| `NOT IN` | Not in list | `space NOT IN ("ARCHIVE")` |
+| `>`, `<`, `>=`, `<=` | Comparison | `created >= "2025-01-01"` |
+
+## Common Fields
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `type` | Content type | `type = "page"` or `type = "blogpost"` |
+| `space` | Space key | `space = "DEV"` |
+| `title` | Page title | `title ~ "architecture"` |
+| `text` | Full-text content search | `text ~ "API documentation"` |
+| `label` | Content label | `label = "approved"` |
+| `creator` | Created by user | `creator = currentUser()` |
+| `contributor` | Any editor | `contributor = "jane@example.com"` |
+| `created` | Creation date | `created >= "2025-01-01"` |
+| `lastModified` | Last modified date | `lastModified >= "2025-06-01"` |
+| `ancestor` | Under a parent page (recursive) | `ancestor = "12345678"` |
+| `parent` | Direct parent page | `parent = "12345678"` |
+| `id` | Content ID | `id = "12345678"` |
+
+## Practical Patterns
+
+### Pages in a space (newest first)
+
+```
+type = page AND space = "DEV" ORDER BY lastModified DESC
+```
+
+### Recently modified content
+
+```
+type = page AND lastModified >= "-7d" ORDER BY lastModified DESC
+```
+
+### Content with a specific label
+
+```
+type = page AND label = "architecture" ORDER BY title ASC
+```
+
+### Pages under a parent (recursive)
+
+```
+ancestor = "12345678" AND type = page ORDER BY title ASC
+```
+
+### Full-text search in a space
+
+```
+space = "DEV" AND text ~ "database migration" ORDER BY lastModified DESC
+```
+
+### Pages created this month
+
+```
+type = page AND created >= startOfMonth() ORDER BY created DESC
+```
+
+### My recently edited pages
+
+```
+type = page AND contributor = currentUser() AND lastModified >= "-30d" ORDER BY lastModified DESC
+```
+
+### Blog posts in a space
+
+```
+type = blogpost AND space = "ENG" ORDER BY created DESC
+```
+
+### Pages with multiple labels
+
+```
+type = page AND label = "api" AND label = "v2" ORDER BY title ASC
+```
+
+### Pages without a specific label
+
+```
+type = page AND space = "DEV" AND label != "archived" ORDER BY lastModified DESC
+```
+
+### Search across all spaces
+
+```
+type = page AND title ~ "onboarding" ORDER BY lastModified DESC
+```
+
+### Personal space search
+
+```
+space = "~username" AND type = page ORDER BY lastModified DESC
+```
+
+<Aside type="caution">
+Personal space keys starting with `~` must be quoted in CQL: `space = "~username"`
+</Aside>
+
+## Using CQL with ctk
+
+### CLI
+
+```bash
+# CQL query
+ctk search 'type=page AND space=DEV AND title~"architecture"'
+
+# Quick text search
+ctk search --quick "API documentation"
+```
+
+### MCP
+
+```json
+{
+  "action": "cql",
+  "cql": "type=page AND space=DEV AND lastModified >= \"-7d\" ORDER BY lastModified DESC",
+  "limit": 25
+}
+```
+
+```json
+{
+  "action": "quick",
+  "query": "onboarding guide"
+}
+```
+
+<Aside type="tip">
+For simple searches, use the `quick` action — it mimics the Confluence search bar and returns relevance-ranked results without needing CQL syntax.
+</Aside>
+
+<Aside type="tip">
+Use `ORDER BY lastModified DESC` to see the most recently updated content first. This is the most useful default ordering.
+</Aside>
+
+<Aside type="note">
+CQL date fields accept both absolute dates (`"2025-01-01"`) and relative dates using functions like `startOfDay()`, `startOfWeek()`, `startOfMonth()`, and `startOfYear()`.
+</Aside>
