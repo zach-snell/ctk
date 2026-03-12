@@ -1,0 +1,121 @@
+---
+title: ctk auth
+description: Authentication commands — login, status, and logout.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Authentication Methods
+
+ctk supports two authentication methods:
+
+1. **Environment variables** (recommended for CI/CD and MCP servers)
+2. **Interactive login** (stores credentials locally)
+
+Environment variables take priority over stored credentials.
+
+### Environment Variables
+
+Set these environment variables to authenticate without running `ctk auth`:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `CONFLUENCE_DOMAIN` | Your Atlassian site subdomain | `mycompany` (for mycompany.atlassian.net) |
+| `CONFLUENCE_EMAIL` | Your Atlassian email address | `jane@example.com` |
+| `CONFLUENCE_API_TOKEN` | API token from Atlassian | `ATATT3xFf...` |
+| `CONFLUENCE_TOKEN_TYPE` | Optional. `classic` or `scoped` | `classic` |
+
+```bash
+export CONFLUENCE_DOMAIN="mycompany"
+export CONFLUENCE_EMAIL="jane@example.com"
+export CONFLUENCE_API_TOKEN="your-api-token"
+```
+
+<Aside type="tip">
+Generate an API token at [https://id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens). The same token works for both Jira and Confluence on the same Atlassian site.
+</Aside>
+
+### MCP Server Configuration
+
+When configuring ctk as an MCP server, pass credentials as environment variables:
+
+```json
+{
+  "ctk": {
+    "type": "local",
+    "command": ["/path/to/ctk", "mcp"],
+    "environment": {
+      "CONFLUENCE_DOMAIN": "mycompany",
+      "CONFLUENCE_EMAIL": "jane@example.com",
+      "CONFLUENCE_API_TOKEN": "your-api-token",
+      "CTK_ENABLE_WRITES": "true"
+    }
+  }
+}
+```
+
+## Commands
+
+### `ctk auth`
+
+Interactive login that prompts for your Confluence domain, email, and API token. Credentials are saved to `~/.config/ctk/credentials.json`.
+
+```bash
+ctk auth
+```
+
+ctk automatically detects whether your token is a classic API token or a scoped/fine-grained token and configures auth accordingly.
+
+### `ctk status`
+
+Shows the current authentication status, including which method is active.
+
+```bash
+ctk status
+```
+
+**With environment variables:**
+
+```
+Authenticated via environment variables
+  Domain:  mycompany.atlassian.net
+  Email:   jane@example.com
+```
+
+**With stored credentials:**
+
+```
+Authenticated via stored credentials
+  Domain:  mycompany.atlassian.net
+  Email:   jane@example.com
+  Token:   ATAT...61F3
+  Stored:  2025-01-15 09:30:00
+  File:    /home/jane/.config/ctk/credentials.json
+```
+
+### `ctk logout`
+
+Removes stored credentials from disk.
+
+```bash
+ctk logout
+```
+
+```
+Logged out. Credentials removed.
+```
+
+<Aside type="note">
+`ctk logout` only removes stored credentials. If you're using environment variables, those remain active until unset.
+</Aside>
+
+## Token Types
+
+ctk supports both Atlassian token types:
+
+| Type | Auth Method | Base URL | How to Identify |
+|------|-------------|----------|-----------------|
+| **Classic** | Basic Auth (email:token) | `https://{domain}.atlassian.net/wiki/api/v2` | Created at id.atlassian.com |
+| **Scoped** | Basic Auth (email:token) | `https://api.atlassian.com/ex/confluence/{cloudId}/wiki/api/v2` | Created via developer console with granular permissions |
+
+ctk auto-detects the token type by probing both auth methods at startup.

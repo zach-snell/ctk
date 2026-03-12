@@ -3,7 +3,7 @@ title: CLI Overview
 description: Overview of ctk command-line interface commands
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 ctk provides a traditional command-line interface alongside its MCP server mode.
 All CLI commands support a `--json` flag for raw JSON output.
@@ -11,7 +11,7 @@ All CLI commands support a `--json` flag for raw JSON output.
 ## Global Flags
 
 | Flag | Description |
-|---|---|
+|------|-------------|
 | `--json` | Output raw JSON instead of formatted tables |
 | `--version` | Print the ctk version |
 | `--help` | Show help for any command |
@@ -19,28 +19,22 @@ All CLI commands support a `--json` flag for raw JSON output.
 ## Commands
 
 <CardGrid>
-  <Card title="ctk auth" icon="setting">
-    Authenticate with Confluence Cloud. Prompts for domain, email, and API token.
-  </Card>
-  <Card title="ctk status" icon="information">
-    Show current authentication status and credential details.
-  </Card>
-  <Card title="ctk logout" icon="close">
-    Remove stored credentials.
-  </Card>
-  <Card title="ctk spaces" icon="list-format">
-    List and get Confluence spaces. [Details](/ctk/cli/spaces/)
-  </Card>
-  <Card title="ctk pages" icon="document">
-    Full page lifecycle: get, list, create, update, diff, comment. [Details](/ctk/cli/pages/)
-  </Card>
-  <Card title="ctk folders" icon="open-book">
-    List, get, and navigate Confluence folders. [Details](/ctk/cli/folders/)
-  </Card>
-  <Card title="ctk search" icon="magnifier">
-    Search with CQL or quick text. [Details](/ctk/cli/search/)
-  </Card>
-  <Card title="ctk mcp" icon="rocket">
-    Start the MCP server over stdio.
-  </Card>
+  <LinkCard title="ctk auth" description="Login, status, logout, and environment variable config" href="/ctk/cli/auth/" />
+  <LinkCard title="ctk mcp" description="Start the MCP server (stdio or HTTP)" href="/ctk/cli/mcp/" />
+  <LinkCard title="ctk spaces" description="List and get Confluence spaces" href="/ctk/cli/spaces/" />
+  <LinkCard title="ctk pages" description="Full page lifecycle: get, list, create, update, diff, comment" href="/ctk/cli/pages/" />
+  <LinkCard title="ctk folders" description="List, get, and navigate Confluence folders" href="/ctk/cli/folders/" />
+  <LinkCard title="ctk search" description="Search with CQL or quick text" href="/ctk/cli/search/" />
 </CardGrid>
+
+## Output Modes
+
+By default, ctk outputs human-readable formatted tables. Use `--json` for raw JSON:
+
+```bash
+# Formatted table output
+ctk spaces list
+
+# Raw JSON output
+ctk spaces list --json
+```

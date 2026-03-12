@@ -1,0 +1,140 @@
+---
+title: ctk mcp
+description: Start the Confluence MCP server — stdio and HTTP Streamable transport.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Start the Model Context Protocol (MCP) server for Confluence Cloud.
+
+## Usage
+
+```bash
+# stdio transport (default)
+ctk mcp
+
+# HTTP Streamable transport
+ctk mcp --port 8080
+```
+
+## Flags
+
+| Flag | Short | Type | Default | Description |
+|------|-------|------|---------|-------------|
+| `--port` | `-p` | int | `0` | Port to listen on. When `0` (default), uses stdio transport. |
+
+## Transport Modes
+
+### stdio (default)
+
+When no `--port` is specified, ctk communicates over standard input/output. This is the standard mode for local MCP clients:
+
+- **Claude Desktop** / **Claude Code**
+- **Cursor**
+- **opencode**
+- **Any MCP client using stdio**
+
+```bash
+ctk mcp
+```
+
+### HTTP Streamable
+
+When `--port` is specified, ctk starts an HTTP server using the MCP Streamable HTTP transport:
+
+```bash
+ctk mcp --port 8080
+```
+
+```
+Starting Confluence MCP Server on :8080 (HTTP Streamable)
+```
+
+Use this mode for remote MCP clients, web-based integrations, or multi-user setups.
+
+## Prerequisites
+
+Authentication must be configured before starting the server. The server checks for credentials in this order:
+
+1. **Environment variables**: `CONFLUENCE_DOMAIN`, `CONFLUENCE_EMAIL`, `CONFLUENCE_API_TOKEN`
+2. **Stored credentials**: from `ctk auth` (saved at `~/.config/ctk/credentials.json`)
+
+If neither is found, the server exits with an error:
+
+```
+No credentials found. Either:
+  1. Run: ctk auth
+  2. Set CONFLUENCE_DOMAIN + CONFLUENCE_EMAIL + CONFLUENCE_API_TOKEN env vars
+```
+
+## Write Gating
+
+By default, write operations (create, update, delete, move) are **disabled**. To enable them, set:
+
+```bash
+CTK_ENABLE_WRITES=true ctk mcp
+```
+
+Or in your MCP client configuration:
+
+```json
+{
+  "environment": {
+    "CTK_ENABLE_WRITES": "true"
+  }
+}
+```
+
+When writes are disabled, write actions return an error and are excluded from tool descriptions.
+
+## Client Configuration Examples
+
+### Claude Desktop / Claude Code
+
+```json
+{
+  "mcpServers": {
+    "ctk": {
+      "command": "/path/to/ctk",
+      "args": ["mcp"],
+      "env": {
+        "CONFLUENCE_DOMAIN": "mycompany",
+        "CONFLUENCE_EMAIL": "jane@example.com",
+        "CONFLUENCE_API_TOKEN": "your-api-token",
+        "CTK_ENABLE_WRITES": "true"
+      }
+    }
+  }
+}
+```
+
+### opencode
+
+```json
+{
+  "mcp": {
+    "ctk": {
+      "type": "local",
+      "command": ["/path/to/ctk", "mcp"],
+      "environment": {
+        "CONFLUENCE_DOMAIN": "mycompany",
+        "CONFLUENCE_EMAIL": "jane@example.com",
+        "CONFLUENCE_API_TOKEN": "your-api-token",
+        "CTK_ENABLE_WRITES": "true"
+      }
+    }
+  }
+}
+```
+
+## What Happens at Startup
+
+1. **Credentials loaded** from env vars or stored credentials
+2. **Token type auto-detected** (classic vs scoped) if not set explicitly
+3. **Write gating checked** — `CTK_ENABLE_WRITES` determines available actions
+4. **Tools registered** — tool descriptions dynamically reflect read-only vs read-write mode
+5. **Server ready** — begins accepting MCP requests
+
+<Aside type="tip">
+See the [MCP Tool Reference](/ctk/mcp/overview/) for the full list of 8 tools available through the server.
+</Aside>

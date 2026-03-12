@@ -46,10 +46,12 @@ export default defineConfig({
 					],
 				},
 				{
-					label: 'CLI Commands',
-					items: [
-						{ label: 'Overview', slug: 'cli/overview' },
-						{ label: 'ctk spaces', slug: 'cli/spaces' },
+			label: 'CLI Commands',
+				items: [
+					{ label: 'Overview', slug: 'cli/overview' },
+					{ label: 'ctk auth', slug: 'cli/auth' },
+					{ label: 'ctk mcp', slug: 'cli/mcp' },
+					{ label: 'ctk spaces', slug: 'cli/spaces' },
 						{ label: 'ctk pages', slug: 'cli/pages' },
 						{ label: 'ctk folders', slug: 'cli/folders' },
 						{ label: 'ctk search', slug: 'cli/search' },
