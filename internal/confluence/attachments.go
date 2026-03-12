@@ -48,7 +48,7 @@ func (c *Client) GetAttachment(attachmentID string) (*Attachment, error) {
 // DownloadAttachment downloads the content of an attachment.
 // Returns the raw bytes, media type, and any error.
 // The downloadURL should be a relative path from the attachment's downloadLink field.
-func (c *Client) DownloadAttachment(downloadURL string) ([]byte, string, error) {
+func (c *Client) DownloadAttachment(downloadURL string) (data []byte, mediaType string, err error) {
 	if downloadURL == "" {
 		return nil, "", fmt.Errorf("download URL is required")
 	}
@@ -64,11 +64,11 @@ func (c *Client) DownloadAttachment(downloadURL string) ([]byte, string, error) 
 		return nil, "", fmt.Errorf("download failed with status %d: %s", resp.StatusCode, string(body))
 	}
 
-	data, err := io.ReadAll(resp.Body)
+	data, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, "", fmt.Errorf("reading attachment content: %w", err)
 	}
 
-	mediaType := resp.Header.Get("Content-Type")
+	mediaType = resp.Header.Get("Content-Type")
 	return data, mediaType, nil
 }

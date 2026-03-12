@@ -71,7 +71,7 @@ func (c *Client) ListInlineComments(args ListInlineCommentsArgs) (*PagedResult[I
 }
 
 // AddFooterComment creates a new footer comment on a page.
-func (c *Client) AddFooterComment(pageID string, body string) (*Comment, error) {
+func (c *Client) AddFooterComment(pageID, body string) (*Comment, error) {
 	if pageID == "" {
 		return nil, fmt.Errorf("page_id is required")
 	}
@@ -103,7 +103,7 @@ func (c *Client) AddFooterComment(pageID string, body string) (*Comment, error) 
 }
 
 // ReplyToComment creates a reply to an existing footer comment.
-func (c *Client) ReplyToComment(commentID string, body string) (*Comment, error) {
+func (c *Client) ReplyToComment(commentID, body string) (*Comment, error) {
 	if commentID == "" {
 		return nil, fmt.Errorf("comment_id is required")
 	}

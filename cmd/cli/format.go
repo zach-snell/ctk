@@ -73,7 +73,7 @@ func (t *Table) Flush() {
 // --- Key-value helpers ---
 
 // KV prints a labeled key-value pair with consistent padding.
-func KV(label string, value string) {
+func KV(label, value string) {
 	fmt.Printf("  %-16s%s\n", label+":", value)
 }
 

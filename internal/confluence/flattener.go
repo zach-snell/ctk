@@ -74,11 +74,12 @@ func FlattenPage(p *Page) *FlattenedPage {
 
 	// Convert body from storage format to markdown
 	if p.Body != nil {
-		if p.Body.Storage != nil && p.Body.Storage.Value != "" {
+		switch {
+		case p.Body.Storage != nil && p.Body.Storage.Value != "":
 			fp.Body = StorageFormatToMarkdown(p.Body.Storage.Value)
-		} else if p.Body.AtlasDocFormat != nil && p.Body.AtlasDocFormat.Value != "" {
+		case p.Body.AtlasDocFormat != nil && p.Body.AtlasDocFormat.Value != "":
 			fp.Body = ADFToPlainText(p.Body.AtlasDocFormat.Value)
-		} else if p.Body.View != nil && p.Body.View.Value != "" {
+		case p.Body.View != nil && p.Body.View.Value != "":
 			fp.Body = StorageFormatToMarkdown(p.Body.View.Value)
 		}
 	}
@@ -211,11 +212,12 @@ func FlattenComment(c *Comment) *FlattenedComment {
 	}
 
 	if c.Body != nil {
-		if c.Body.Storage != nil && c.Body.Storage.Value != "" {
+		switch {
+		case c.Body.Storage != nil && c.Body.Storage.Value != "":
 			fc.Body = StorageFormatToMarkdown(c.Body.Storage.Value)
-		} else if c.Body.AtlasDocFormat != nil && c.Body.AtlasDocFormat.Value != "" {
+		case c.Body.AtlasDocFormat != nil && c.Body.AtlasDocFormat.Value != "":
 			fc.Body = ADFToPlainText(c.Body.AtlasDocFormat.Value)
-		} else if c.Body.View != nil && c.Body.View.Value != "" {
+		case c.Body.View != nil && c.Body.View.Value != "":
 			fc.Body = StorageFormatToMarkdown(c.Body.View.Value)
 		}
 	}
@@ -241,11 +243,12 @@ func FlattenInlineComment(c *InlineComment) *FlattenedComment {
 	}
 
 	if c.Body != nil {
-		if c.Body.Storage != nil && c.Body.Storage.Value != "" {
+		switch {
+		case c.Body.Storage != nil && c.Body.Storage.Value != "":
 			fc.Body = StorageFormatToMarkdown(c.Body.Storage.Value)
-		} else if c.Body.AtlasDocFormat != nil && c.Body.AtlasDocFormat.Value != "" {
+		case c.Body.AtlasDocFormat != nil && c.Body.AtlasDocFormat.Value != "":
 			fc.Body = ADFToPlainText(c.Body.AtlasDocFormat.Value)
-		} else if c.Body.View != nil && c.Body.View.Value != "" {
+		case c.Body.View != nil && c.Body.View.Value != "":
 			fc.Body = StorageFormatToMarkdown(c.Body.View.Value)
 		}
 	}
@@ -350,7 +353,7 @@ func SafeMarshal(data interface{}) string {
 	_ = os.MkdirAll(logDir, 0o755)
 	filename := fmt.Sprintf("ctk-response-%d.json", time.Now().UnixMilli())
 	fpath := filepath.Join(logDir, filename)
-	_ = os.WriteFile(fpath, out, 0o644)
+	_ = os.WriteFile(fpath, out, 0o600)
 
 	// Truncate at a newline boundary for cleaner output
 	truncated := s[:maxResponseChars]

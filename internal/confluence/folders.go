@@ -67,11 +67,7 @@ func (c *Client) CreateFolder(args CreateFolderArgs) (*Folder, error) {
 		return nil, fmt.Errorf("title is required")
 	}
 
-	req := CreateFolderRequest{
-		SpaceID:  args.SpaceID,
-		Title:    args.Title,
-		ParentID: args.ParentID,
-	}
+	req := CreateFolderRequest(args)
 
 	data, err := c.Post("/wiki/api/v2/folders", req)
 	if err != nil {
