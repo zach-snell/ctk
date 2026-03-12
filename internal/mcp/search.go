@@ -10,7 +10,7 @@ import (
 
 type ManageSearchArgs struct {
 	Action     string `json:"action" jsonschema:"Action to perform: 'cql', 'quick'" jsonschema_enum:"cql,quick"`
-	CQL        string `json:"cql,omitempty" jsonschema:"CQL query string (required for 'cql' action). Example: type=page AND space=DEV AND title~'architecture'"`
+	CQL        string `json:"cql,omitempty" jsonschema:"CQL query string (required for 'cql' action). Common CQL patterns: 'type=page AND space=DEV AND title~\"architecture\"', 'text~\"search term\" AND type=page', 'label=\"my-label\" AND space=TEAM', 'ancestor=12345 AND type=page', 'creator=currentUser() ORDER BY lastModified DESC', 'lastModified >= \"2024-01-01\" AND type=page', 'type=blogpost AND space=ENG'"`
 	Query      string `json:"query,omitempty" jsonschema:"Text to search for (required for 'quick' action)"`
 	Limit      int    `json:"limit,omitempty" jsonschema:"Number of results (default 25)"`
 	Start      int    `json:"start,omitempty" jsonschema:"Starting offset for pagination"`
