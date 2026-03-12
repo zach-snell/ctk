@@ -85,7 +85,7 @@ func NewClient(domain, email, token string) *Client {
 }
 
 // NewScopedClient creates a Confluence API client for scoped/fine-grained tokens.
-// Uses Bearer auth against the Atlassian gateway URL.
+// Uses Basic Auth (same as classic) against the Atlassian gateway URL.
 func NewScopedClient(cloudID, email, token string) *Client {
 	return &Client{
 		http: &http.Client{
@@ -160,14 +160,9 @@ func (c *Client) do(method, path string, bodyData []byte, contentType string) (*
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
 
-	// Apply auth based on token type
-	switch c.tokenType {
-	case TokenTypeScoped:
-		req.Header.Set("Authorization", "Bearer "+c.token)
-	default:
-		// Classic token uses Basic Auth (email:api_token)
-		req.SetBasicAuth(c.email, c.token)
-	}
+	// Both classic and scoped tokens use Basic Auth (email:api_token).
+	// The difference is only the base URL (direct site vs gateway).
+	req.SetBasicAuth(c.email, c.token)
 
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
