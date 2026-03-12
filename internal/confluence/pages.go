@@ -432,11 +432,12 @@ func computeDiff(fromLines, toLines []string, fromVer, toVer int) string {
 	}
 	for i := 1; i <= m; i++ {
 		for j := 1; j <= n; j++ {
-			if fromLines[i-1] == toLines[j-1] {
+			switch {
+			case fromLines[i-1] == toLines[j-1]:
 				lcs[i][j] = lcs[i-1][j-1] + 1
-			} else if lcs[i-1][j] >= lcs[i][j-1] {
+			case lcs[i-1][j] >= lcs[i][j-1]:
 				lcs[i][j] = lcs[i-1][j]
-			} else {
+			default:
 				lcs[i][j] = lcs[i][j-1]
 			}
 		}
@@ -451,14 +452,15 @@ func computeDiff(fromLines, toLines []string, fromVer, toVer int) string {
 
 	i, j := m, n
 	for i > 0 || j > 0 {
-		if i > 0 && j > 0 && fromLines[i-1] == toLines[j-1] {
+		switch {
+		case i > 0 && j > 0 && fromLines[i-1] == toLines[j-1]:
 			result = append(result, diffLine{' ', fromLines[i-1]})
 			i--
 			j--
-		} else if j > 0 && (i == 0 || lcs[i][j-1] >= lcs[i-1][j]) {
+		case j > 0 && (i == 0 || lcs[i][j-1] >= lcs[i-1][j]):
 			result = append(result, diffLine{'+', toLines[j-1]})
 			j--
-		} else if i > 0 {
+		case i > 0:
 			result = append(result, diffLine{'-', fromLines[i-1]})
 			i--
 		}

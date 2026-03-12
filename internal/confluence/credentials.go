@@ -106,7 +106,7 @@ func ProbeTokenType(domain, email, token string) (TokenType, string, error) {
 
 	// 1. Try classic: Basic Auth against direct site URL
 	classicURL := fmt.Sprintf("https://%s.atlassian.net/wiki/api/v2/spaces?limit=1", domain)
-	req, err := http.NewRequest(http.MethodGet, classicURL, nil)
+	req, err := http.NewRequest(http.MethodGet, classicURL, http.NoBody)
 	if err != nil {
 		return "", "", fmt.Errorf("creating probe request: %w", err)
 	}
@@ -133,7 +133,7 @@ func ProbeTokenType(domain, email, token string) (TokenType, string, error) {
 	}
 
 	gatewayURL := fmt.Sprintf("https://api.atlassian.com/ex/confluence/%s/wiki/api/v2/spaces?limit=1", cloudID)
-	req, err = http.NewRequest(http.MethodGet, gatewayURL, nil)
+	req, err = http.NewRequest(http.MethodGet, gatewayURL, http.NoBody)
 	if err != nil {
 		return "", "", fmt.Errorf("creating gateway probe request: %w", err)
 	}
