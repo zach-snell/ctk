@@ -13,7 +13,8 @@ type ManagePagesArgs struct {
 	PageID         string `json:"page_id,omitempty" jsonschema:"Page ID (required for get, update, delete, get_children, get_ancestors, move, diff)"`
 	SpaceID        string `json:"space_id,omitempty" jsonschema:"Space ID (required for list, create, get_by_title)"`
 	Title          string `json:"title,omitempty" jsonschema:"Page title (required for create, get_by_title; optional for update)"`
-	Body           string `json:"body,omitempty" jsonschema:"Page body in Confluence storage format (XHTML) (for create, update). Use HTML tags: <p> for paragraphs, <h2>/<h3> for headings, <ul>/<li> for lists, <a href=''> for links, <table> for tables, <code> for inline code."`
+	Body           string `json:"body,omitempty" jsonschema:"Page body content (for create, update). Accepts markdown by default (# headings, **bold**, *italic*, [links](url), - lists, | tables). Set content_format='storage' to pass raw Confluence XHTML instead."`
+	ContentFormat  string `json:"content_format,omitempty" jsonschema:"Format of body content: 'markdown' (default) or 'storage' for raw Confluence XHTML. When using markdown: # for headings, **bold**, *italic*, \\x60code\\x60, [text](url) for links, - for lists, | for tables."`
 	ParentID       string `json:"parent_id,omitempty" jsonschema:"Parent page ID (for create)"`
 	Version        int    `json:"version,omitempty" jsonschema:"Page version number (required for update, move — must be current version + 1)"`
 	Status         string `json:"status,omitempty" jsonschema:"Page status: 'current', 'draft' (for create, update, list filter)"`
@@ -158,10 +159,14 @@ func handleCreatePage(c *confluence.Client, canWrite bool, args ManagePagesArgs)
 	if args.SpaceID == "" || args.Title == "" {
 		return ToolResultError("space_id and title are required for 'create' action"), nil, nil
 	}
+	body := args.Body
+	if body != "" && args.ContentFormat != "storage" {
+		body = confluence.MarkdownToStorage(body)
+	}
 	page, err := c.CreatePage(confluence.CreatePageArgs{
 		SpaceID:  args.SpaceID,
 		Title:    args.Title,
-		Body:     args.Body,
+		Body:     body,
 		ParentID: args.ParentID,
 		Status:   args.Status,
 	})
@@ -181,10 +186,14 @@ func handleUpdatePage(c *confluence.Client, canWrite bool, args ManagePagesArgs)
 	if args.Version == 0 {
 		return ToolResultError("version is required for 'update' action (must be current version + 1)"), nil, nil
 	}
+	body := args.Body
+	if body != "" && args.ContentFormat != "storage" {
+		body = confluence.MarkdownToStorage(body)
+	}
 	page, err := c.UpdatePage(confluence.UpdatePageArgs{
 		PageID:  args.PageID,
 		Title:   args.Title,
-		Body:    args.Body,
+		Body:    body,
 		Version: args.Version,
 		Status:  args.Status,
 	})

@@ -9,12 +9,13 @@ import (
 )
 
 type ManageCommentsArgs struct {
-	Action    string `json:"action" jsonschema:"Action to perform: 'list_footer', 'list_inline', 'get_replies', 'add_footer', 'reply'" jsonschema_enum:"list_footer,list_inline,get_replies,add_footer,reply"`
-	PageID    string `json:"page_id,omitempty" jsonschema:"Page ID (required for list_footer, list_inline, add_footer)"`
-	CommentID string `json:"comment_id,omitempty" jsonschema:"Comment ID (required for get_replies, reply)"`
-	Body      string `json:"body,omitempty" jsonschema:"Comment body in Confluence storage format (required for add_footer, reply). Use HTML tags: <p> for paragraphs, <a href=''> for links. Example: '<p>See <a href=\"https://example.com\">this page</a></p>'"`
-	Limit     int    `json:"limit,omitempty" jsonschema:"Number of results per page (default 25)"`
-	Cursor    string `json:"cursor,omitempty" jsonschema:"Pagination cursor for next page"`
+	Action        string `json:"action" jsonschema:"Action to perform: 'list_footer', 'list_inline', 'get_replies', 'add_footer', 'reply'" jsonschema_enum:"list_footer,list_inline,get_replies,add_footer,reply"`
+	PageID        string `json:"page_id,omitempty" jsonschema:"Page ID (required for list_footer, list_inline, add_footer)"`
+	CommentID     string `json:"comment_id,omitempty" jsonschema:"Comment ID (required for get_replies, reply)"`
+	Body          string `json:"body,omitempty" jsonschema:"Comment body content (required for add_footer, reply). Accepts markdown by default (# headings, **bold**, *italic*, [links](url), - lists, | tables). Set content_format='storage' to pass raw Confluence XHTML instead."`
+	ContentFormat string `json:"content_format,omitempty" jsonschema:"Format of body content: 'markdown' (default) or 'storage' for raw Confluence XHTML. When using markdown: # for headings, **bold**, *italic*, \\x60code\\x60, [text](url) for links, - for lists, | for tables."`
+	Limit         int    `json:"limit,omitempty" jsonschema:"Number of results per page (default 25)"`
+	Cursor        string `json:"cursor,omitempty" jsonschema:"Pagination cursor for next page"`
 }
 
 // ManageCommentsHandler handles comment operations, with optional write support.
@@ -83,7 +84,11 @@ func ManageCommentsHandler(c *confluence.Client, canWrite bool) func(context.Con
 			if args.Body == "" {
 				return ToolResultError("body is required for 'add_footer' action"), nil, nil
 			}
-			comment, err := c.AddFooterComment(args.PageID, args.Body)
+			body := args.Body
+			if args.ContentFormat != "storage" {
+				body = confluence.MarkdownToStorage(body)
+			}
+			comment, err := c.AddFooterComment(args.PageID, body)
 			if err != nil {
 				return ToolResultError(fmt.Sprintf("failed to add footer comment: %v", err)), nil, nil
 			}
@@ -99,7 +104,11 @@ func ManageCommentsHandler(c *confluence.Client, canWrite bool) func(context.Con
 			if args.Body == "" {
 				return ToolResultError("body is required for 'reply' action"), nil, nil
 			}
-			comment, err := c.ReplyToComment(args.CommentID, args.Body)
+			body := args.Body
+			if args.ContentFormat != "storage" {
+				body = confluence.MarkdownToStorage(body)
+			}
+			comment, err := c.ReplyToComment(args.CommentID, body)
 			if err != nil {
 				return ToolResultError(fmt.Sprintf("failed to reply to comment: %v", err)), nil, nil
 			}
