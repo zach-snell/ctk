@@ -1,0 +1,4 @@
+<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">go</ac:parameter><ac:plain-text-body><![CDATA[func main() {
+	fmt.Println("hello")
+}]]></ac:plain-text-body></ac:structured-macro><pre><code>plain code block
+no language</code></pre>

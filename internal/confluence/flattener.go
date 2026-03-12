@@ -61,13 +61,13 @@ func FlattenPage(p *Page) *FlattenedPage {
 		ParentID: p.ParentID,
 	}
 
-	if !p.CreatedAt.IsZero() {
+	if p.CreatedAt != nil {
 		fp.Created = p.CreatedAt.Format(time.RFC3339)
 	}
 
 	if p.Version != nil {
 		fp.Version = p.Version.Number
-		if !p.Version.CreatedAt.IsZero() {
+		if p.Version.CreatedAt != nil {
 			fp.Updated = p.Version.CreatedAt.Format(time.RFC3339)
 		}
 	}
@@ -168,13 +168,13 @@ func FlattenFolder(f *Folder) *FlattenedFolder {
 		Status:   f.Status,
 	}
 
-	if !f.CreatedAt.IsZero() {
+	if f.CreatedAt != nil {
 		ff.Created = f.CreatedAt.Format(time.RFC3339)
 	}
 
 	if f.Version != nil {
 		ff.Version = f.Version.Number
-		if !f.Version.CreatedAt.IsZero() {
+		if f.Version.CreatedAt != nil {
 			ff.Updated = f.Version.CreatedAt.Format(time.RFC3339)
 		}
 	}
@@ -203,11 +203,11 @@ func FlattenComment(c *Comment) *FlattenedComment {
 		Status:   c.Status,
 	}
 
-	if !c.CreatedAt.IsZero() {
+	if c.CreatedAt != nil {
 		fc.Created = c.CreatedAt.Format(time.RFC3339)
 	}
 
-	if c.Version != nil && !c.Version.CreatedAt.IsZero() {
+	if c.Version != nil && c.Version.CreatedAt != nil {
 		fc.Updated = c.Version.CreatedAt.Format(time.RFC3339)
 	}
 
@@ -234,11 +234,11 @@ func FlattenInlineComment(c *InlineComment) *FlattenedComment {
 		Status:   c.Status,
 	}
 
-	if !c.CreatedAt.IsZero() {
+	if c.CreatedAt != nil {
 		fc.Created = c.CreatedAt.Format(time.RFC3339)
 	}
 
-	if c.Version != nil && !c.Version.CreatedAt.IsZero() {
+	if c.Version != nil && c.Version.CreatedAt != nil {
 		fc.Updated = c.Version.CreatedAt.Format(time.RFC3339)
 	}
 
@@ -278,7 +278,7 @@ func FlattenPageVersion(v *PageVersionDetail) *FlattenedPageVersion {
 		MinorEdit: v.MinorEdit,
 	}
 
-	if !v.CreatedAt.IsZero() {
+	if v.CreatedAt != nil {
 		fv.Created = v.CreatedAt.Format(time.RFC3339)
 	}
 
@@ -307,7 +307,7 @@ func FlattenAttachment(a *Attachment) *FlattenedAttachment {
 		Comment:   a.Comment,
 	}
 
-	if !a.CreatedAt.IsZero() {
+	if a.CreatedAt != nil {
 		fa.Created = a.CreatedAt.Format(time.RFC3339)
 	}
 

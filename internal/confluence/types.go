@@ -4,16 +4,16 @@ import "time"
 
 // Space represents a Confluence space.
 type Space struct {
-	ID          string    `json:"id"`
-	Key         string    `json:"key"`
-	Name        string    `json:"name"`
-	Type        string    `json:"type"`
-	Status      string    `json:"status"`
-	Description string    `json:"description,omitempty"`
-	HomepageID  string    `json:"homepageId,omitempty"`
-	CreatedAt   time.Time `json:"createdAt,omitempty"`
-	AuthorID    string    `json:"authorId,omitempty"`
-	Links       Links     `json:"_links,omitempty"`
+	ID          string     `json:"id"`
+	Key         string     `json:"key"`
+	Name        string     `json:"name"`
+	Type        string     `json:"type"`
+	Status      string     `json:"status"`
+	Description string     `json:"description,omitempty"`
+	HomepageID  string     `json:"homepageId,omitempty"`
+	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+	AuthorID    string     `json:"authorId,omitempty"`
+	Links       Links      `json:"_links,omitempty"`
 }
 
 // Page represents a Confluence page (V2 API).
@@ -25,7 +25,7 @@ type Page struct {
 	ParentID   string       `json:"parentId,omitempty"`
 	ParentType string       `json:"parentType,omitempty"`
 	AuthorID   string       `json:"authorId,omitempty"`
-	CreatedAt  time.Time    `json:"createdAt,omitempty"`
+	CreatedAt  *time.Time   `json:"createdAt,omitempty"`
 	Version    *PageVersion `json:"version,omitempty"`
 	Body       *PageBody    `json:"body,omitempty"`
 	Labels     *LabelList   `json:"labels,omitempty"`
@@ -34,10 +34,10 @@ type Page struct {
 
 // PageVersion represents version info for a page.
 type PageVersion struct {
-	Number    int       `json:"number"`
-	Message   string    `json:"message,omitempty"`
-	CreatedAt time.Time `json:"createdAt,omitempty"`
-	AuthorID  string    `json:"authorId,omitempty"`
+	Number    int        `json:"number"`
+	Message   string     `json:"message,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	AuthorID  string     `json:"authorId,omitempty"`
 }
 
 // PageBody holds the body representations.
@@ -74,24 +74,24 @@ type Comment struct {
 	Body      *PageBody    `json:"body,omitempty"`
 	Version   *PageVersion `json:"version,omitempty"`
 	AuthorID  string       `json:"authorId,omitempty"`
-	CreatedAt time.Time    `json:"createdAt,omitempty"`
+	CreatedAt *time.Time   `json:"createdAt,omitempty"`
 	PageID    string       `json:"pageId,omitempty"`
 	Links     Links        `json:"_links,omitempty"`
 }
 
 // Attachment represents a page attachment.
 type Attachment struct {
-	ID          string    `json:"id"`
-	Status      string    `json:"status"`
-	Title       string    `json:"title"`
-	MediaType   string    `json:"mediaType,omitempty"`
-	FileSize    int64     `json:"fileSize,omitempty"`
-	Comment     string    `json:"comment,omitempty"`
-	PageID      string    `json:"pageId,omitempty"`
-	Version     int       `json:"version,omitempty"`
-	CreatedAt   time.Time `json:"createdAt,omitempty"`
-	DownloadURL string    `json:"downloadLink,omitempty"`
-	Links       Links     `json:"_links,omitempty"`
+	ID          string     `json:"id"`
+	Status      string     `json:"status"`
+	Title       string     `json:"title"`
+	MediaType   string     `json:"mediaType,omitempty"`
+	FileSize    int64      `json:"fileSize,omitempty"`
+	Comment     string     `json:"comment,omitempty"`
+	PageID      string     `json:"pageId,omitempty"`
+	Version     int        `json:"version,omitempty"`
+	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+	DownloadURL string     `json:"downloadLink,omitempty"`
+	Links       Links      `json:"_links,omitempty"`
 }
 
 // User represents an Atlassian user.
@@ -184,7 +184,7 @@ type Folder struct {
 	SpaceID   string       `json:"spaceId,omitempty"`
 	ParentID  string       `json:"parentId,omitempty"`
 	Status    string       `json:"status,omitempty"`
-	CreatedAt time.Time    `json:"createdAt,omitempty"`
+	CreatedAt *time.Time   `json:"createdAt,omitempty"`
 	Version   *PageVersion `json:"version,omitempty"`
 	Links     Links        `json:"_links,omitempty"`
 }
@@ -205,11 +205,11 @@ type UpdateFolderRequest struct {
 
 // PageVersionDetail represents a single version entry in a page's version history.
 type PageVersionDetail struct {
-	Number    int       `json:"number"`
-	Message   string    `json:"message,omitempty"`
-	CreatedAt time.Time `json:"createdAt,omitempty"`
-	AuthorID  string    `json:"authorId,omitempty"`
-	MinorEdit bool      `json:"minorEdit,omitempty"`
+	Number    int        `json:"number"`
+	Message   string     `json:"message,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	AuthorID  string     `json:"authorId,omitempty"`
+	MinorEdit bool       `json:"minorEdit,omitempty"`
 }
 
 // InlineComment represents an inline comment on a Confluence page.
@@ -220,7 +220,7 @@ type InlineComment struct {
 	Body       *PageBody                `json:"body,omitempty"`
 	Version    *PageVersion             `json:"version,omitempty"`
 	AuthorID   string                   `json:"authorId,omitempty"`
-	CreatedAt  time.Time                `json:"createdAt,omitempty"`
+	CreatedAt  *time.Time               `json:"createdAt,omitempty"`
 	PageID     string                   `json:"pageId,omitempty"`
 	Properties *InlineCommentProperties `json:"properties,omitempty"`
 	Links      Links                    `json:"_links,omitempty"`
