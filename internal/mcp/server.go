@@ -98,8 +98,14 @@ func registerTools(s *mcp.Server, c *confluence.Client) {
 	// ─── Attachments ─────────────────────────────────────────────────
 	addTool(s, disabled, mcp.Tool{
 		Name:        "manage_attachments",
-		Description: "Unified tool for Confluence attachment operations (list, download)",
-	}, ManageAttachmentsHandler(c))
+		Description: fmt.Sprintf("Unified tool for Confluence attachment operations (list, download%s)", writeActions(canWrite, ", upload, delete")),
+	}, ManageAttachmentsHandler(c, canWrite))
+
+	// ─── Users ───────────────────────────────────────────────────────
+	addTool(s, disabled, mcp.Tool{
+		Name:        "manage_users",
+		Description: "Search and get Confluence users. Actions: 'get_current', 'search'",
+	}, ManageUsersHandler(c))
 }
 
 func writeActions(canWrite bool, actions string) string {
