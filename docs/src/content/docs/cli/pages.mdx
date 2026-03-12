@@ -1,0 +1,139 @@
+---
+title: ctk pages
+description: Manage Confluence pages from the CLI
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Subcommands
+
+### `ctk pages get [page-id]`
+
+Retrieve a page by its ID. Returns metadata and body content.
+
+```bash
+ctk pages get 12345678
+```
+
+Output:
+
+```
+Page: Architecture Overview
+  ID:        12345678
+  Space ID:  131073
+  Status:    current
+  Version:   5
+  Parent ID: 131074
+  Created:   2025-01-10T14:30:00Z
+  Updated:   2025-03-01T09:15:00Z
+
+--- Body ---
+# Architecture Overview
+
+This document describes the system architecture...
+```
+
+<Aside type="note">
+Page bodies are automatically converted from Confluence storage format (XHTML)
+to markdown for readability.
+</Aside>
+
+### `ctk pages list [space-id]`
+
+List pages in a space.
+
+```bash
+ctk pages list 131073
+```
+
+Output:
+
+```
+ID          Title                              Status    Version
+───────────────────────────────────────────────────────────────
+12345678    Architecture Overview               current   5
+12345679    API Design                          current   3
+12345680    Deployment Guide                    current   12
+
+Showing 3 pages
+```
+
+### `ctk pages create`
+
+Create a new page. Requires `--space` and `--title`.
+
+```bash
+ctk pages create --space 131073 --title "New Page" --body "<p>Hello</p>"
+ctk pages create -s 131073 -t "New Page" --parent 12345678
+```
+
+| Flag | Short | Description |
+|---|---|---|
+| `--space` | `-s` | Space ID (required) |
+| `--title` | `-t` | Page title (required) |
+| `--body` | `-b` | Page body in storage format |
+| `--parent` | | Parent page ID |
+
+### `ctk pages update [page-id]`
+
+Update an existing page. Automatically fetches the current version and
+increments it.
+
+```bash
+ctk pages update 12345678 --title "Updated Title" --body "<p>New content</p>"
+```
+
+| Flag | Short | Description |
+|---|---|---|
+| `--title` | `-t` | New page title (required) |
+| `--body` | `-b` | New page body in storage format |
+
+### `ctk pages versions [page-id]`
+
+List version history for a page.
+
+```bash
+ctk pages versions 12345678
+```
+
+Output:
+
+```
+Version  Author              Message                  Minor  Created
+─────────────────────────────────────────────────────────────────────
+5        5b10ac...            Updated architecture            2025-03-01
+4        5b10ac...            Added diagrams                  2025-02-15
+3        5b10ac...            Initial draft             yes   2025-01-10
+
+Showing 3 versions
+```
+
+### `ctk pages diff [page-id]`
+
+Compare two versions of a page with a unified diff.
+
+```bash
+ctk pages diff 12345678 --from 3 --to 5
+```
+
+| Flag | Description |
+|---|---|
+| `--from` | Starting version number (required) |
+| `--to` | Ending version number (required) |
+
+Output:
+
+```
+Diff: Architecture Overview (v3 -> v5)
+
+- Old architecture description
++ New architecture description with updated diagrams
+```
+
+### `ctk pages comment [page-id] [body]`
+
+Add a footer comment to a page.
+
+```bash
+ctk pages comment 12345678 "<p>Looks good!</p>"
+```

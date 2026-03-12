@@ -1,0 +1,115 @@
+---
+title: Usage Examples
+description: Real workflow examples using ctk CLI and MCP tools
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## CLI Workflows
+
+### Find and read a page
+
+```bash
+# Search for pages about deployment
+ctk search "type=page AND title~'deployment'"
+
+# Get the full content of a result
+ctk pages get 12345678
+
+# Check version history
+ctk pages versions 12345678
+```
+
+### Navigate a space
+
+```bash
+# List all spaces
+ctk spaces list
+
+# Get a specific space
+ctk spaces get DEV
+
+# List pages in the space
+ctk pages list 131073
+
+# List folders in the space
+ctk folders list 131073
+
+# Get child folders
+ctk folders children 87654321
+```
+
+### Compare page versions
+
+```bash
+# See what changed between v3 and v5
+ctk pages diff 12345678 --from 3 --to 5
+```
+
+### Create and update pages
+
+```bash
+# Create a page
+ctk pages create -s 131073 -t "Sprint Retrospective" \
+  -b "<h1>Sprint 42</h1><p>What went well...</p>"
+
+# Update a page
+ctk pages update 12345678 -t "Sprint Retrospective (Updated)" \
+  -b "<h1>Sprint 42</h1><p>Updated content...</p>"
+```
+
+### Pipe JSON to jq
+
+```bash
+# Get page IDs from a space
+ctk pages list 131073 --json | jq '.[].id'
+
+# Search and extract titles
+ctk search "space=DEV AND type=page" --json | jq '.results[].title'
+```
+
+## MCP Conversation Examples
+
+### Research a topic
+
+> **You:** What do our Confluence docs say about the authentication flow?
+>
+> **Agent:** Let me search for authentication-related pages.
+>
+> *(calls `manage_search` with `{"action": "cql", "cql": "type=page AND title~'auth'"}`)*
+>
+> I found 4 pages. Let me read the most relevant one.
+>
+> *(calls `manage_pages` with `{"action": "get", "page_id": "12345678"}`)*
+>
+> Here's what the docs say about the authentication flow...
+
+### Audit recent changes
+
+> **You:** What pages were changed this week in the DEV space?
+>
+> **Agent:** *(calls `manage_search` with `{"action": "cql", "cql": "type=page AND space=DEV AND lastModified >= startOfWeek()"}`)*
+>
+> 3 pages were modified this week. Let me check what changed in each.
+>
+> *(calls `manage_pages` with `{"action": "list_versions", "page_id": "..."}` for each)*
+>
+> *(calls `manage_pages` with `{"action": "diff", ...}` for the one with multiple new versions)*
+
+### Organize content
+
+> **You:** Move the old API docs into the Archive folder
+>
+> **Agent:** Let me find the Archive folder first.
+>
+> *(calls `manage_folders` with `{"action": "list", "space_id": "131073"}`)*
+>
+> Found it. Now let me find the old API docs.
+>
+> *(calls `manage_search` with `{"action": "cql", "cql": "type=page AND title~'API' AND space=DEV AND label='deprecated'"}`)*
+>
+> *(calls `manage_pages` with `{"action": "move", ...}` for each page)*
+
+<Aside type="note">
+The move action requires `CTK_ENABLE_WRITES=true` to be set.
+</Aside>

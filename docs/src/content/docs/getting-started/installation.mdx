@@ -1,0 +1,59 @@
+---
+title: Installation
+description: Install ctk on macOS or Linux
+---
+
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+
+## Install Script (recommended)
+
+<Tabs>
+  <TabItem label="macOS">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/zach-snell/ctk/main/install.sh | bash
+    ```
+  </TabItem>
+  <TabItem label="Linux">
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/zach-snell/ctk/main/install.sh | bash
+    ```
+  </TabItem>
+</Tabs>
+
+The script downloads the latest release binary to `~/.local/bin/ctk`.
+
+## Go Install
+
+If you have Go 1.24+ installed:
+
+```bash
+go install github.com/zach-snell/ctk/cmd/ctk@latest
+```
+
+## Build from Source
+
+<Steps>
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/zach-snell/ctk.git
+   cd ctk
+   ```
+
+2. Build with mise (or `go build` directly):
+   ```bash
+   mise run build
+   # or: go build -ldflags='-s -w' -o bin/ctk ./cmd/ctk
+   ```
+
+3. Optionally install to your PATH:
+   ```bash
+   mise run install
+   # or: cp bin/ctk ~/.local/bin/
+   ```
+</Steps>
+
+## Verify
+
+```bash
+ctk --version
+```

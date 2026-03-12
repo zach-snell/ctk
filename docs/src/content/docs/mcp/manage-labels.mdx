@@ -1,0 +1,78 @@
+---
+title: manage_labels
+description: MCP tool for managing page labels
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Unified tool for listing, adding, and removing labels on Confluence pages.
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | `list`, `add`, or `remove` |
+| `page_id` | string | Yes | Page ID (required for all actions) |
+| `label` | string | For `add`, `remove` | Label name |
+| `limit` | int | No | Results per page (default 25) |
+| `cursor` | string | No | Pagination cursor |
+
+## Actions
+
+### `list`
+
+List all labels on a page.
+
+```json
+{
+  "action": "list",
+  "page_id": "12345678"
+}
+```
+
+Response:
+
+```json
+["architecture", "adr", "important"]
+```
+
+### `add`
+
+Add a label to a page.
+
+```json
+{
+  "action": "add",
+  "page_id": "12345678",
+  "label": "reviewed"
+}
+```
+
+Response:
+
+```
+Label 'reviewed' added to page 12345678
+```
+
+### `remove`
+
+Remove a label from a page.
+
+```json
+{
+  "action": "remove",
+  "page_id": "12345678",
+  "label": "draft"
+}
+```
+
+Response:
+
+```
+Label 'draft' removed from page 12345678
+```
+
+<Aside type="caution">
+The `add` and `remove` actions require `CTK_ENABLE_WRITES=true`. The `list`
+action is always available.
+</Aside>

@@ -1,0 +1,76 @@
+---
+title: ctk search
+description: Search Confluence with CQL or quick text search
+---
+
+## Usage
+
+```bash
+ctk search [query]
+ctk search --quick [text]
+```
+
+## CQL Search (default)
+
+By default, `ctk search` uses Confluence Query Language (CQL):
+
+```bash
+# Find pages in a specific space
+ctk search "type=page AND space=DEV"
+
+# Search by title pattern
+ctk search "title~'architecture' AND type=page"
+
+# Find pages with a label
+ctk search "label='important' AND space=TEAM"
+
+# Recent pages modified this week
+ctk search "type=page AND lastModified >= startOfWeek()"
+```
+
+Output:
+
+```
+Type    Space  Title                              Excerpt
+─────────────────────────────────────────────────────────────
+page    DEV    Architecture Overview               System architecture and design...
+page    DEV    API Design                          REST API design principles...
+
+Showing 2 of 2 results
+```
+
+## Quick Text Search
+
+Use `--quick` (or `-q`) for a simple text search:
+
+```bash
+ctk search --quick "migration guide"
+ctk search -q "deployment process"
+```
+
+Quick search is simpler but less powerful than CQL. It searches across
+titles, content, and excerpts.
+
+## Flags
+
+| Flag | Short | Description |
+|---|---|---|
+| `--quick` | `-q` | Use quick text search instead of CQL |
+| `--json` | | Output raw JSON response |
+
+## CQL Reference
+
+Common CQL operators and fields:
+
+| Field | Description | Example |
+|---|---|---|
+| `type` | Content type | `type=page`, `type=blogpost` |
+| `space` | Space key | `space=DEV` |
+| `title` | Exact title | `title="My Page"` |
+| `title~` | Title contains | `title~'architecture'` |
+| `label` | Page label | `label='important'` |
+| `creator` | Created by | `creator=currentUser()` |
+| `lastModified` | Last modified date | `lastModified >= "2025-01-01"` |
+| `ancestor` | Under a page | `ancestor=12345678` |
+
+Operators: `AND`, `OR`, `NOT`, `=`, `!=`, `~` (contains), `>=`, `<=`

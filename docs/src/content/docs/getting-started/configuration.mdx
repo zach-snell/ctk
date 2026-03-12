@@ -1,0 +1,137 @@
+---
+title: Configuration
+description: Authenticate ctk with your Confluence Cloud instance
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+
+## Interactive Login
+
+The fastest way to get started:
+
+```bash
+ctk auth
+```
+
+This prompts for your Confluence domain, email, and API token, verifies
+them against the Confluence API, and stores them locally.
+
+<Aside type="tip">
+Create an API token at
+[https://id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens).
+</Aside>
+
+## Credentials File
+
+Credentials are stored at `~/.config/ctk/credentials.json` with mode `0600`:
+
+```json
+{
+  "domain": "mycompany",
+  "email": "user@example.com",
+  "api_token": "ATATT3x...",
+  "created_at": "2025-01-15T10:30:00Z"
+}
+```
+
+The `domain` field is the subdomain only (e.g., `mycompany` for
+`mycompany.atlassian.net`).
+
+## Environment Variables
+
+You can skip stored credentials entirely by setting these environment variables:
+
+| Variable | Description |
+|---|---|
+| `CONFLUENCE_DOMAIN` | Confluence subdomain (e.g., `mycompany`) |
+| `CONFLUENCE_EMAIL` | Atlassian account email |
+| `CONFLUENCE_API_TOKEN` | Atlassian API token |
+
+Environment variables take precedence over stored credentials.
+
+### Write Gating
+
+| Variable | Description |
+|---|---|
+| `CTK_ENABLE_WRITES` | Set to `true` to enable create, update, delete operations |
+| `CTK_DISABLED_TOOLS` | Comma-separated list of MCP tool names to disable |
+
+<Aside type="caution">
+Write operations (create, update, delete, move) are **disabled by default**.
+You must explicitly set `CTK_ENABLE_WRITES=true` to enable them.
+</Aside>
+
+## MCP Client Configuration
+
+<Tabs>
+  <TabItem label="Claude Desktop">
+    Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "ctk": {
+          "command": "/Users/you/.local/bin/ctk",
+          "args": ["mcp"],
+          "env": {
+            "CONFLUENCE_DOMAIN": "mycompany",
+            "CONFLUENCE_EMAIL": "user@example.com",
+            "CONFLUENCE_API_TOKEN": "ATATT3x...",
+            "CTK_ENABLE_WRITES": "true"
+          }
+        }
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Cursor">
+    Add to `.cursor/mcp.json` in your project root:
+
+    ```json
+    {
+      "mcpServers": {
+        "ctk": {
+          "command": "/Users/you/.local/bin/ctk",
+          "args": ["mcp"],
+          "env": {
+            "CONFLUENCE_DOMAIN": "mycompany",
+            "CONFLUENCE_EMAIL": "user@example.com",
+            "CONFLUENCE_API_TOKEN": "ATATT3x...",
+            "CTK_ENABLE_WRITES": "true"
+          }
+        }
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Claude Code">
+    ```bash
+    claude mcp add ctk -- /Users/you/.local/bin/ctk mcp
+    ```
+
+    Set env vars in your shell or `.mise.local.toml` before launching.
+  </TabItem>
+</Tabs>
+
+## Check Status
+
+```bash
+ctk status
+```
+
+Output:
+
+```
+Authenticated via stored credentials
+  Domain:  mycompany.atlassian.net
+  Email:   user@example.com
+  Token:   ATAT...3xFg
+  Stored:  2025-01-15 10:30:00
+  File:    /Users/you/.config/ctk/credentials.json
+```
+
+## Logout
+
+```bash
+ctk logout
+```

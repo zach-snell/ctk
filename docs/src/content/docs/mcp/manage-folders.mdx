@@ -1,0 +1,132 @@
+---
+title: manage_folders
+description: MCP tool for Confluence folder operations
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Unified tool for Confluence folder operations. Folders are a newer Confluence
+Cloud feature for organizing content within spaces.
+
+<Aside type="tip">
+ctk is the only Confluence MCP server with folder support.
+</Aside>
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | See actions below |
+| `folder_id` | string | Varies | Folder ID |
+| `space_id` | string | Varies | Space ID |
+| `title` | string | Varies | Folder title |
+| `parent_id` | string | No | Parent folder ID (for create) |
+| `version` | int | For `update` | Version number (current + 1) |
+| `limit` | int | No | Results per page (default 25) |
+| `cursor` | string | No | Pagination cursor |
+
+## Read Actions
+
+### `list`
+
+List all folders in a space.
+
+**Required:** `space_id`
+
+```json
+{
+  "action": "list",
+  "space_id": "131073"
+}
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "87654321",
+    "title": "Engineering",
+    "space_id": "131073",
+    "status": "current",
+    "version": 2,
+    "created": "2025-01-05T10:00:00Z",
+    "updated": "2025-02-20T14:30:00Z"
+  }
+]
+```
+
+### `get`
+
+Get a folder by ID.
+
+**Required:** `folder_id`
+
+```json
+{
+  "action": "get",
+  "folder_id": "87654321"
+}
+```
+
+### `get_children`
+
+Get child folders of a folder.
+
+**Required:** `folder_id`
+
+```json
+{
+  "action": "get_children",
+  "folder_id": "87654321"
+}
+```
+
+## Write Actions
+
+<Aside type="caution">
+Write actions require `CTK_ENABLE_WRITES=true`.
+</Aside>
+
+### `create`
+
+Create a new folder.
+
+**Required:** `space_id`, `title`
+
+```json
+{
+  "action": "create",
+  "space_id": "131073",
+  "title": "New Folder",
+  "parent_id": "87654321"
+}
+```
+
+### `update`
+
+Update a folder title. Version must be current version + 1.
+
+**Required:** `folder_id`, `title`, `version`
+
+```json
+{
+  "action": "update",
+  "folder_id": "87654321",
+  "title": "Renamed Folder",
+  "version": 3
+}
+```
+
+### `delete`
+
+Delete a folder.
+
+**Required:** `folder_id`
+
+```json
+{
+  "action": "delete",
+  "folder_id": "87654321"
+}
+```

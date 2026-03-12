@@ -1,0 +1,117 @@
+---
+title: Storage Format
+description: How ctk converts Confluence XHTML storage format to markdown
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## What is Confluence Storage Format?
+
+Confluence stores page content as XHTML with custom XML namespaces. This is
+called **storage format**. It looks like this:
+
+```xml
+<h1>Architecture Overview</h1>
+<p>This document describes the <strong>system architecture</strong>
+for our platform.</p>
+<ac:structured-macro ac:name="code">
+  <ac:parameter ac:name="language">go</ac:parameter>
+  <ac:plain-text-body><![CDATA[func main() {}]]></ac:plain-text-body>
+</ac:structured-macro>
+<table>
+  <tr><th>Service</th><th>Port</th></tr>
+  <tr><td>API</td><td>8080</td></tr>
+</table>
+```
+
+This is verbose and burns LLM context tokens. Raw Confluence API responses
+include this XHTML along with metadata bloat (`_links`, `_expandable`,
+`extensions`, etc.).
+
+## How ctk Handles It
+
+ctk converts storage format to **markdown** automatically when flattening page
+responses. The `StorageFormatToMarkdown` function performs a best-effort
+conversion designed for LLM readability.
+
+The XHTML above becomes:
+
+```markdown
+# Architecture Overview
+
+This document describes the **system architecture** for our platform.
+
+```
+func main() {}
+```
+
+| Service | Port |
+| API | 8080 |
+```
+
+## What Gets Converted
+
+| XHTML Element | Markdown Output |
+|---|---|
+| `<h1>` through `<h6>` | `#` through `######` |
+| `<p>` | Newline-separated paragraphs |
+| `<strong>`, `<b>` | `**bold**` |
+| `<em>`, `<i>` | `*italic*` |
+| `<code>` | `` `inline code` `` |
+| `<pre><code>` | Fenced code blocks |
+| `<a href="...">` | `[text](url)` |
+| `<ul>`, `<li>` | `- list items` |
+| `<ol>`, `<li>` | `- list items` |
+| `<table>`, `<tr>`, `<td>` | Pipe tables |
+| `<blockquote>` | `> blockquote` |
+| `<hr>` | `---` |
+| `<br>` | Newline |
+
+## Confluence Macros
+
+Confluence uses custom `ac:` XML elements for macros (code blocks, info panels,
+table of contents, etc.). ctk handles these as follows:
+
+| Macro | Handling |
+|---|---|
+| `ac:structured-macro` | Stripped (content within may be preserved) |
+| `ac:parameter` | Stripped |
+| `ac:link` | Extracts `ri:content-title` as `[title]` |
+| `ac:image` | Replaced with `[image]` |
+| `ri:attachment` | Stripped |
+| `ri:page` | Stripped |
+
+<Aside type="note">
+The conversion is intentionally lossy. It prioritizes readable markdown for
+LLM consumption over pixel-perfect fidelity. Complex macro content (panels,
+expandable sections, Jira issue links) is stripped.
+</Aside>
+
+## Atlas Document Format (ADF)
+
+Some Confluence content uses ADF (a JSON-based format) instead of XHTML.
+ctk detects ADF and extracts plain text from it, preserving paragraph
+boundaries for block-level elements.
+
+## Response Truncation
+
+Responses larger than **40,000 characters** are truncated. When truncation
+occurs:
+
+1. The response is cut at a newline boundary
+2. The full response is saved to `/tmp/ctk-logs/ctk-response-<timestamp>.json`
+3. A guidance message is appended with the file path and suggestions to narrow
+   the query
+
+## HTML Entity Decoding
+
+Common HTML entities are decoded in the output:
+
+| Entity | Character |
+|---|---|
+| `&amp;` | `&` |
+| `&lt;` | `<` |
+| `&gt;` | `>` |
+| `&quot;` | `"` |
+| `&#39;` | `'` |
+| `&nbsp;` | (space) |

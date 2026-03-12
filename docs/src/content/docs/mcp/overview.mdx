@@ -1,0 +1,90 @@
+---
+title: MCP Overview
+description: How ctk works as a Model Context Protocol server
+---
+
+import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+ctk implements the [Model Context Protocol](https://modelcontextprotocol.io/)
+over stdio. When you run `ctk mcp`, it starts a server that AI agents can call
+to interact with Confluence Cloud.
+
+## Starting the Server
+
+```bash
+ctk mcp
+```
+
+The server reads credentials from environment variables or stored credentials
+(same as the CLI).
+
+## Write Gating
+
+Write operations are **disabled by default**. When writes are disabled, tools
+like `manage_pages` only expose read actions (`get`, `list`, `get_children`,
+etc.). Create, update, delete, and move actions return an error.
+
+To enable writes:
+
+```bash
+CTK_ENABLE_WRITES=true ctk mcp
+```
+
+The tool descriptions dynamically reflect which actions are available based on
+the `CTK_ENABLE_WRITES` setting.
+
+## Disabling Tools
+
+You can disable specific tools with the `CTK_DISABLED_TOOLS` environment
+variable:
+
+```bash
+CTK_DISABLED_TOOLS="manage_comments,manage_attachments" ctk mcp
+```
+
+## Available Tools
+
+<CardGrid>
+  <LinkCard
+    title="manage_spaces"
+    description="List and get Confluence spaces"
+    href="/ctk/mcp/manage-spaces/"
+  />
+  <LinkCard
+    title="manage_pages"
+    description="Full page lifecycle: get, list, create, update, delete, move, diff"
+    href="/ctk/mcp/manage-pages/"
+  />
+  <LinkCard
+    title="manage_search"
+    description="CQL and quick text search"
+    href="/ctk/mcp/manage-search/"
+  />
+  <LinkCard
+    title="manage_labels"
+    description="List, add, and remove page labels"
+    href="/ctk/mcp/manage-labels/"
+  />
+  <LinkCard
+    title="manage_folders"
+    description="List, get, create, and manage folders"
+    href="/ctk/mcp/manage-folders/"
+  />
+  <LinkCard
+    title="manage_comments"
+    description="Footer comments, inline comments, and replies"
+    href="/ctk/mcp/manage-comments/"
+  />
+  <LinkCard
+    title="manage_attachments"
+    description="List and download page attachments"
+    href="/ctk/mcp/manage-attachments/"
+  />
+</CardGrid>
+
+<Aside type="note">
+All responses are flattened and stripped of Confluence API bloat (`_links`,
+`_expandable`, `extensions`, etc.). Page bodies are converted from XHTML
+storage format to markdown. Responses larger than 40KB are truncated and the
+full output is saved to `/tmp/ctk-logs/`.
+</Aside>

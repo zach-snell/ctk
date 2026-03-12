@@ -1,0 +1,76 @@
+---
+title: manage_spaces
+description: MCP tool for listing and getting Confluence spaces
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Unified tool for listing and getting Confluence spaces.
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | `list`, `get`, or `get_by_key` |
+| `space_id` | string | For `get` | Space ID |
+| `key` | string | For `get_by_key` | Space key (e.g., `DEV`) |
+| `limit` | int | No | Results per page (default 25) |
+| `cursor` | string | No | Pagination cursor for next page |
+| `type` | string | No | Filter: `global` or `personal` |
+| `status` | string | No | Filter: `current` or `archived` |
+
+## Actions
+
+### `list`
+
+List all spaces the authenticated user can access.
+
+```json
+{
+  "action": "list",
+  "type": "global",
+  "limit": 10
+}
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "131073",
+    "key": "DEV",
+    "name": "Development",
+    "type": "global",
+    "status": "current",
+    "homepage_id": "131074",
+    "web_url": "/wiki/spaces/DEV"
+  }
+]
+```
+
+### `get`
+
+Get a space by its ID.
+
+```json
+{
+  "action": "get",
+  "space_id": "131073"
+}
+```
+
+### `get_by_key`
+
+Get a space by its key.
+
+```json
+{
+  "action": "get_by_key",
+  "key": "DEV"
+}
+```
+
+<Aside type="note">
+This tool is read-only. No write gating applies.
+</Aside>

@@ -1,0 +1,78 @@
+---
+title: manage_attachments
+description: MCP tool for Confluence attachment operations
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Unified tool for listing and downloading Confluence page attachments.
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | `list` or `download` |
+| `page_id` | string | For `list` | Page ID |
+| `attachment_id` | string | For `download` | Attachment ID |
+| `limit` | int | No | Results per page (default 25) |
+| `cursor` | string | No | Pagination cursor |
+
+## Actions
+
+### `list`
+
+List all attachments on a page.
+
+**Required:** `page_id`
+
+```json
+{
+  "action": "list",
+  "page_id": "12345678"
+}
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "att55443322",
+    "title": "architecture-diagram.png",
+    "media_type": "image/png",
+    "file_size": 245760,
+    "page_id": "12345678",
+    "created": "2025-02-15T14:00:00Z",
+    "comment": "Updated diagram"
+  }
+]
+```
+
+### `download`
+
+Download an attachment to `/tmp/ctk-downloads/`.
+
+**Required:** `attachment_id`
+
+```json
+{
+  "action": "download",
+  "attachment_id": "att55443322"
+}
+```
+
+Response:
+
+```json
+{
+  "path": "/tmp/ctk-downloads/architecture-diagram.png",
+  "filename": "architecture-diagram.png",
+  "media_type": "image/png",
+  "size_bytes": 245760
+}
+```
+
+<Aside type="note">
+This tool is read-only. Downloads are saved to `/tmp/ctk-downloads/`. No write
+gating applies.
+</Aside>

@@ -1,0 +1,86 @@
+---
+title: Security
+description: Security model and credentials handling in ctk
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Credentials Storage
+
+Credentials are stored at `~/.config/ctk/credentials.json` with file
+permissions `0600` (owner read/write only). The config directory is created
+with `0700` permissions.
+
+The file contains:
+- Confluence subdomain
+- Email address
+- API token (not your Atlassian password)
+- Timestamp of when credentials were stored
+
+<Aside type="caution">
+The API token is stored in plain text. Protect this file as you would an SSH
+private key. Do not commit it to version control.
+</Aside>
+
+## Environment Variables
+
+For CI/CD or MCP server deployment, credentials can be passed via environment
+variables instead of the file:
+
+- `CONFLUENCE_DOMAIN`
+- `CONFLUENCE_EMAIL`
+- `CONFLUENCE_API_TOKEN`
+
+Environment variables take precedence over stored credentials.
+
+## Write Gating
+
+Write operations (create, update, delete, move pages/folders; add/remove
+labels; add comments) are **disabled by default**.
+
+To enable writes, set `CTK_ENABLE_WRITES=true`. This is an explicit opt-in
+to prevent accidental modifications.
+
+When writes are disabled:
+- Tool descriptions reflect only read actions
+- Write actions return a clear error message
+- The AI agent sees only what it can do
+
+## Tool Disabling
+
+Individual tools can be disabled with `CTK_DISABLED_TOOLS`:
+
+```bash
+CTK_DISABLED_TOOLS="manage_comments,manage_attachments" ctk mcp
+```
+
+Disabled tools are not registered with the MCP server at all -- they don't
+appear in the tool list.
+
+## Rate Limiting
+
+The built-in rate limiter prevents accidental API abuse:
+
+- 20 requests per minute maximum
+- Token-bucket algorithm with 3-second refill
+- Applies to all HTTP methods
+
+If the rate limit is exceeded, the request fails immediately with an error
+(no retry/backoff).
+
+## Network Security
+
+- All API calls use HTTPS to `<domain>.atlassian.net`
+- Authentication uses HTTP Basic Auth (email + API token)
+- No data is sent to any third party
+- No telemetry or analytics
+
+## Data Locality
+
+ctk runs entirely on your machine:
+
+- Credentials are stored locally
+- API calls go directly to Confluence Cloud
+- Response logs go to `/tmp/ctk-logs/` (local temp directory)
+- Downloaded attachments go to `/tmp/ctk-downloads/`
+- No data leaves your machine except to Confluence

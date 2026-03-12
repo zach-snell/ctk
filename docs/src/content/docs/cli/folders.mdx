@@ -1,0 +1,81 @@
+---
+title: ctk folders
+description: Manage Confluence Cloud folders from the CLI
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip">
+Confluence Cloud folders are a newer feature. ctk is the only MCP server that
+supports them.
+</Aside>
+
+## Subcommands
+
+### `ctk folders list [space-id]`
+
+List all folders in a space.
+
+```bash
+ctk folders list 131073
+```
+
+Output:
+
+```
+ID          Title                              Status    Version
+───────────────────────────────────────────────────────────────
+87654321    Engineering                         current   2
+87654322    Design Documents                    current   1
+87654323    Meeting Notes                       current   3
+
+Showing 3 folders
+```
+
+### `ctk folders get [folder-id]`
+
+Get folder details.
+
+```bash
+ctk folders get 87654321
+```
+
+Output:
+
+```
+Folder: Engineering
+  ID:        87654321
+  Space ID:  131073
+  Parent ID: 
+  Status:    current
+  Version:   2
+  Created:   2025-01-05T10:00:00Z
+  Updated:   2025-02-20T14:30:00Z
+```
+
+### `ctk folders children [folder-id]`
+
+Get child folders of a folder.
+
+```bash
+ctk folders children 87654321
+```
+
+Output:
+
+```
+ID          Title                              Status    Version
+───────────────────────────────────────────────────────────────
+87654324    Backend                             current   1
+87654325    Frontend                            current   1
+
+Showing 2 child folders
+```
+
+## JSON Output
+
+All commands support `--json`:
+
+```bash
+ctk folders list 131073 --json
+```

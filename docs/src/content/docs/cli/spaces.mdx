@@ -1,0 +1,54 @@
+---
+title: ctk spaces
+description: List and get Confluence spaces from the CLI
+---
+
+## Subcommands
+
+### `ctk spaces list`
+
+List all spaces the authenticated user has access to.
+
+```bash
+ctk spaces list
+```
+
+Output:
+
+```
+ID          Key    Name              Type     Status
+────────────────────────────────────────────────────
+131073      DEV    Development       global   current
+196609      TEAM   Team Space        global   current
+262145      ~user  Personal Space    personal current
+
+Showing 3 spaces
+```
+
+### `ctk spaces get [space-key]`
+
+Get details for a specific space by its key.
+
+```bash
+ctk spaces get DEV
+```
+
+Output:
+
+```
+Space: Development
+  ID:          131073
+  Key:         DEV
+  Type:        global
+  Status:      current
+  Homepage ID: 131074
+```
+
+## JSON Output
+
+Add `--json` to get the raw API response:
+
+```bash
+ctk spaces list --json
+ctk spaces get DEV --json
+```

@@ -1,0 +1,73 @@
+---
+title: Quick Start
+description: Get up and running with ctk in 5 minutes
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+<Steps>
+1. **Install ctk**
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/zach-snell/ctk/main/install.sh | bash
+   ```
+
+2. **Authenticate**
+
+   ```bash
+   ctk auth
+   ```
+
+   Enter your Confluence domain, email, and API token when prompted.
+
+3. **Run your first command**
+
+   ```bash
+   # List spaces
+   ctk spaces list
+
+   # Search for pages
+   ctk search "type=page AND space=DEV"
+
+   # Get a specific page
+   ctk pages get 12345678
+   ```
+
+4. **Set up MCP**
+
+   Add ctk to your MCP client config (e.g., Claude Desktop):
+
+   ```json
+   {
+     "mcpServers": {
+       "ctk": {
+         "command": "/Users/you/.local/bin/ctk",
+         "args": ["mcp"],
+         "env": {
+           "CONFLUENCE_DOMAIN": "mycompany",
+           "CONFLUENCE_EMAIL": "user@example.com",
+           "CONFLUENCE_API_TOKEN": "ATATT3x..."
+         }
+       }
+     }
+   }
+   ```
+
+5. **Try an AI conversation**
+
+   Once connected, your AI agent can interact with Confluence:
+
+   > **You:** Find the architecture decision records in our DEV space
+   >
+   > **Agent:** I'll search for architecture-related pages in the DEV space.
+   > *(calls manage_search with CQL `type=page AND space=DEV AND title~'ADR'`)*
+   >
+   > I found 3 ADR pages. Let me get the content of the most recent one.
+   > *(calls manage_pages with action `get`)*
+
+</Steps>
+
+<Aside type="tip">
+Use `--json` on any CLI command to get raw JSON output, useful for piping
+into `jq` or other tools.
+</Aside>

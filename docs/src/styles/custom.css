@@ -1,0 +1,21 @@
+/* Custom styles for ctk docs */
+
+:root {
+  --sl-color-accent-low: #134e4a;
+  --sl-color-accent: #0d9488;
+  --sl-color-accent-high: #5eead4;
+}
+
+/* Code blocks */
+pre {
+  border-radius: 0.5rem;
+}
+
+/* Tables */
+table {
+  width: 100%;
+}
+
+th {
+  text-align: left;
+}

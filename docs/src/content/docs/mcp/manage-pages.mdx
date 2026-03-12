@@ -1,0 +1,211 @@
+---
+title: manage_pages
+description: MCP tool for Confluence page operations
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Unified tool for Confluence page operations including reading, writing, version
+history, moving, and diffing.
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | See actions below |
+| `page_id` | string | Varies | Page ID |
+| `space_id` | string | Varies | Space ID |
+| `title` | string | Varies | Page title |
+| `body` | string | No | Page body in Confluence storage format (XHTML) |
+| `parent_id` | string | No | Parent page ID (for create) |
+| `version` | int | Varies | Version number (for update, move: current + 1) |
+| `status` | string | No | `current` or `draft` |
+| `body_format` | string | No | `storage`, `atlas_doc_format`, or `view` |
+| `limit` | int | No | Results per page (default 25) |
+| `cursor` | string | No | Pagination cursor |
+| `sort` | string | No | Sort order (e.g., `-modified-date`, `title`) |
+| `target_space_id` | string | For `move` | Target space ID |
+| `target_parent_id` | string | For `move` | Target parent page ID |
+| `from_version` | int | For `diff` | Starting version number |
+| `to_version` | int | For `diff` | Ending version number |
+
+## Read Actions
+
+### `get`
+
+Get a page by ID. Returns metadata and body converted to markdown.
+
+**Required:** `page_id`
+
+```json
+{
+  "action": "get",
+  "page_id": "12345678"
+}
+```
+
+### `get_by_title`
+
+Get a page by its title within a space.
+
+**Required:** `space_id`, `title`
+
+```json
+{
+  "action": "get_by_title",
+  "space_id": "131073",
+  "title": "Architecture Overview"
+}
+```
+
+### `list`
+
+List pages in a space.
+
+**Required:** `space_id`
+
+```json
+{
+  "action": "list",
+  "space_id": "131073",
+  "sort": "-modified-date",
+  "limit": 10
+}
+```
+
+### `get_children`
+
+Get child pages of a page.
+
+**Required:** `page_id`
+
+```json
+{
+  "action": "get_children",
+  "page_id": "12345678"
+}
+```
+
+### `get_ancestors`
+
+Get ancestor pages (breadcrumb chain) for a page.
+
+**Required:** `page_id`
+
+```json
+{
+  "action": "get_ancestors",
+  "page_id": "12345678"
+}
+```
+
+### `list_versions`
+
+List version history for a page.
+
+**Required:** `page_id`
+
+```json
+{
+  "action": "list_versions",
+  "page_id": "12345678"
+}
+```
+
+Response:
+
+```json
+[
+  {
+    "number": 5,
+    "message": "Updated architecture",
+    "author_id": "5b10ac...",
+    "created": "2025-03-01T09:15:00Z",
+    "minor_edit": false
+  }
+]
+```
+
+### `diff`
+
+Compare two versions of a page. Returns a unified diff of the markdown content.
+
+**Required:** `page_id`, `from_version`, `to_version`
+
+```json
+{
+  "action": "diff",
+  "page_id": "12345678",
+  "from_version": 3,
+  "to_version": 5
+}
+```
+
+## Write Actions
+
+<Aside type="caution">
+Write actions require `CTK_ENABLE_WRITES=true`. They return an error when
+writes are disabled.
+</Aside>
+
+### `create`
+
+Create a new page.
+
+**Required:** `space_id`, `title`
+
+```json
+{
+  "action": "create",
+  "space_id": "131073",
+  "title": "New Page",
+  "body": "<p>Page content in storage format</p>",
+  "parent_id": "12345678",
+  "status": "current"
+}
+```
+
+### `update`
+
+Update an existing page. Version must be current version + 1.
+
+**Required:** `page_id`, `title`, `version`
+
+```json
+{
+  "action": "update",
+  "page_id": "12345678",
+  "title": "Updated Title",
+  "body": "<p>Updated content</p>",
+  "version": 6
+}
+```
+
+### `delete`
+
+Delete a page.
+
+**Required:** `page_id`
+
+```json
+{
+  "action": "delete",
+  "page_id": "12345678"
+}
+```
+
+### `move`
+
+Move a page to a different space or parent. Version must be current version + 1.
+
+**Required:** `page_id`, `version`, and at least one of `target_space_id` or `target_parent_id`
+
+```json
+{
+  "action": "move",
+  "page_id": "12345678",
+  "version": 6,
+  "target_space_id": "196609",
+  "target_parent_id": "87654321"
+}
+```

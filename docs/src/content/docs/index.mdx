@@ -1,0 +1,37 @@
+---
+title: ctk
+description: The complete Confluence client for developers and AI
+template: splash
+hero:
+  tagline: The complete Confluence client for developers and AI
+  actions:
+    - text: Get Started
+      link: /ctk/getting-started/introduction/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/zach-snell/ctk
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+  <Card title="Dual Mode" icon="setting">
+    One binary, two interfaces. Use ctk as a traditional CLI for scripts and
+    terminal workflows, or run it as an MCP server so your AI agents can interact
+    with Confluence directly.
+  </Card>
+  <Card title="Token-Optimized" icon="rocket">
+    Responses are flattened and stripped of Confluence API bloat. XHTML storage
+    format is converted to markdown on the fly, keeping LLM context windows lean.
+  </Card>
+  <Card title="Folder-Aware" icon="open-book">
+    The only Confluence MCP server with first-class folder support. List, create,
+    navigate, and manage Confluence Cloud folders alongside pages.
+  </Card>
+  <Card title="Page Diffing" icon="document">
+    Compare any two versions of a page with a unified diff. Track what changed
+    between edits without leaving your terminal or AI chat.
+  </Card>
+</CardGrid>

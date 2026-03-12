@@ -1,0 +1,127 @@
+---
+title: Architecture
+description: Internal architecture and design decisions of ctk
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Overview
+
+ctk is a single Go binary with two entry points:
+
+```
+cmd/ctk/main.go
+├── cmd/cli/       → cobra-based CLI commands
+└── internal/mcp/  → MCP server (go-sdk)
+```
+
+Running `ctk mcp` starts the MCP server over stdio. All other commands
+(`ctk spaces`, `ctk pages`, etc.) use the CLI path. Both share the same
+`internal/confluence` client.
+
+## Project Structure
+
+```
+ctk/
+├── cmd/
+│   ├── ctk/          # main.go entry point
+│   └── cli/          # cobra command definitions
+│       ├── root.go
+│       ├── auth.go
+│       ├── spaces.go
+│       ├── pages.go
+│       ├── folders.go
+│       └── search.go
+├── internal/
+│   ├── confluence/   # API client and types
+│   │   ├── client.go       # HTTP client with rate limiting
+│   │   ├── credentials.go  # Credential storage/loading
+│   │   ├── flattener.go    # Response flattening + XHTML→MD
+│   │   ├── types.go        # API type definitions
+│   │   ├── pages.go        # Page API methods
+│   │   ├── spaces.go       # Space API methods
+│   │   ├── search.go       # CQL + quick search
+│   │   ├── folders.go      # Folder API methods
+│   │   ├── comments.go     # Comment API methods
+│   │   ├── labels.go       # Label API methods
+│   │   └── attachments.go  # Attachment API methods
+│   ├── mcp/          # MCP tool handlers
+│   │   ├── server.go       # Server setup + tool registration
+│   │   ├── spaces.go       # manage_spaces handler
+│   │   ├── pages.go        # manage_pages handler
+│   │   ├── search.go       # manage_search handler
+│   │   ├── labels.go       # manage_labels handler
+│   │   ├── folders.go      # manage_folders handler
+│   │   ├── comments.go     # manage_comments handler
+│   │   └── attachments.go  # manage_attachments handler
+│   └── version/
+│       └── version.go
+├── docs/             # Astro Starlight documentation
+└── .mise.toml        # Task runner config
+```
+
+## Storage Format Pipeline
+
+When a page is fetched, the response goes through a pipeline:
+
+1. **API response** -- raw JSON from Confluence V2 REST API
+2. **Type unmarshaling** -- into Go structs (`Page`, `Space`, etc.)
+3. **Flattening** -- `FlattenPage()` strips metadata bloat, extracts key fields
+4. **Body conversion** -- `StorageFormatToMarkdown()` converts XHTML to markdown
+5. **Safe marshaling** -- `SafeMarshal()` serializes to JSON, truncating at 40KB
+
+This pipeline reduces a typical Confluence API response from thousands of tokens
+to just the essential content.
+
+## Rate Limiter
+
+The HTTP client uses a **token-bucket rate limiter**:
+
+- **20 tokens** maximum (20 requests per refill cycle)
+- **3-second refill rate** per token
+- Effectively ~20 requests per minute
+
+The limiter is applied to all API calls (GET, POST, PUT, DELETE). If the bucket
+is empty, the request returns an error rather than blocking.
+
+## Write Gating
+
+Write gating is a build-time-style safety mechanism:
+
+1. `CTK_ENABLE_WRITES` is checked once at server startup
+2. The `canWrite` boolean is passed to each handler factory
+3. Tool descriptions dynamically include or exclude write actions
+4. Write actions check `canWrite` and return an error if disabled
+
+This means the AI agent can see from the tool description exactly which actions
+are available, avoiding wasted tool calls.
+
+## API Version Strategy
+
+ctk uses the **Confluence Cloud V2 REST API** (`/wiki/api/v2/`) for all
+operations except CQL search. CQL search uses the **V1 REST API**
+(`/wiki/rest/api/content/search`) because the V2 API does not expose a CQL
+search endpoint.
+
+<Aside type="note">
+Quick search uses the V2 API. CQL search uses V1. Both are exposed through the
+same `manage_search` tool with different actions.
+</Aside>
+
+## Tool Registration
+
+Tools are registered with a generic helper that supports conditional
+disabling:
+
+```go
+func addTool[In any](s *mcp.Server, disabled map[string]bool, tool mcp.Tool,
+    handler func(...) (...)) {
+    if disabled[tool.Name] {
+        return
+    }
+    mcp.AddTool(s, &tool, handler)
+}
+```
+
+The `CTK_DISABLED_TOOLS` environment variable is parsed at startup and tools
+listed in it are simply not registered.

@@ -1,0 +1,93 @@
+---
+title: Development
+description: Building, testing, and contributing to ctk
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+## Prerequisites
+
+- Go 1.26+
+- [mise](https://mise.jdx.dev/) (optional but recommended)
+
+## Getting Started
+
+<Steps>
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/zach-snell/ctk.git
+   cd ctk
+   ```
+
+2. Install tools via mise:
+   ```bash
+   mise install
+   ```
+
+3. Build:
+   ```bash
+   mise run build
+   ```
+
+4. Run tests:
+   ```bash
+   mise run test
+   ```
+</Steps>
+
+## Mise Tasks
+
+| Task | Description | Command |
+|---|---|---|
+| `build` | Build the ctk binary to `bin/ctk` | `mise run build` |
+| `dev` | Build and run in dev mode | `mise run dev` |
+| `lint` | Run golangci-lint | `mise run lint` |
+| `test` | Run tests with race detector | `mise run test` |
+| `install` | Build and install to `~/.local/bin` | `mise run install` |
+| `link` | Fast rebuild directly to `~/.local/bin/ctk` | `mise run link` |
+| `fmt` | Format code with gofumpt | `mise run fmt` |
+| `check` | Run fmt + lint + test | `mise run check` |
+| `clean` | Remove build artifacts | `mise run clean` |
+| `docs:dev` | Run docs dev server | `mise run docs:dev` |
+| `docs:build` | Build docs for production | `mise run docs:build` |
+| `docs:install` | Install docs dependencies | `mise run docs:install` |
+
+## Project Structure
+
+The codebase follows standard Go project layout:
+
+- `cmd/ctk/` -- Binary entry point
+- `cmd/cli/` -- Cobra CLI command definitions
+- `internal/confluence/` -- Confluence API client, types, and helpers
+- `internal/mcp/` -- MCP server and tool handlers
+- `internal/version/` -- Version string
+- `docs/` -- Astro Starlight documentation site
+
+## Adding a New MCP Tool
+
+1. Create a handler file in `internal/mcp/` (e.g., `widgets.go`)
+2. Define the args struct with `json` and `jsonschema` tags
+3. Implement the handler function returning `(*mcp.CallToolResult, any, error)`
+4. Register the tool in `registerTools()` in `server.go` using `addTool()`
+5. Add tests
+
+## Adding a New CLI Command
+
+1. Create a command file in `cmd/cli/` (e.g., `widgets.go`)
+2. Define the cobra command and subcommands
+3. Register with `RootCmd.AddCommand()` in `init()`
+4. Use `getClient()` to get the Confluence client
+5. Use `PrintOrJSON()` for dual output (table/JSON)
+
+## Running the Docs Site
+
+```bash
+mise run docs:install  # first time only
+mise run docs:dev      # starts dev server at localhost:4321
+```
+
+## Code Style
+
+- Format with `gofumpt` (`mise run fmt`)
+- Lint with `golangci-lint` (`mise run lint`)
+- Tests use the standard `testing` package with `-race -count=1`

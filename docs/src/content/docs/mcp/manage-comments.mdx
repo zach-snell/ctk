@@ -1,0 +1,131 @@
+---
+title: manage_comments
+description: MCP tool for Confluence comment operations
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Unified tool for managing footer comments, inline comments, and replies on
+Confluence pages.
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | See actions below |
+| `page_id` | string | Varies | Page ID |
+| `comment_id` | string | Varies | Comment ID |
+| `body` | string | Varies | Comment body in storage format |
+| `limit` | int | No | Results per page (default 25) |
+| `cursor` | string | No | Pagination cursor |
+
+## Read Actions
+
+### `list_footer`
+
+List footer comments on a page.
+
+**Required:** `page_id`
+
+```json
+{
+  "action": "list_footer",
+  "page_id": "12345678"
+}
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "99887766",
+    "type": "footer",
+    "author_id": "5b10ac...",
+    "body": "Looks good, approved!",
+    "created": "2025-03-01T10:00:00Z",
+    "status": "current"
+  }
+]
+```
+
+### `list_inline`
+
+List inline comments on a page. Includes the highlighted text selection.
+
+**Required:** `page_id`
+
+```json
+{
+  "action": "list_inline",
+  "page_id": "12345678"
+}
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "99887767",
+    "type": "inline",
+    "author_id": "5b10ac...",
+    "body": "Should we update this section?",
+    "created": "2025-03-01T11:00:00Z",
+    "status": "current",
+    "inline_selection": "the system architecture"
+  }
+]
+```
+
+<Aside type="note">
+The `inline_selection` field shows the text that was highlighted when the inline
+comment was created.
+</Aside>
+
+### `get_replies`
+
+Get replies to a comment.
+
+**Required:** `comment_id`
+
+```json
+{
+  "action": "get_replies",
+  "comment_id": "99887767"
+}
+```
+
+## Write Actions
+
+<Aside type="caution">
+Write actions require `CTK_ENABLE_WRITES=true`.
+</Aside>
+
+### `add_footer`
+
+Add a footer comment to a page.
+
+**Required:** `page_id`, `body`
+
+```json
+{
+  "action": "add_footer",
+  "page_id": "12345678",
+  "body": "<p>Great work on this document!</p>"
+}
+```
+
+### `reply`
+
+Reply to an existing comment.
+
+**Required:** `comment_id`, `body`
+
+```json
+{
+  "action": "reply",
+  "comment_id": "99887767",
+  "body": "<p>Yes, I'll update it this week.</p>"
+}
+```

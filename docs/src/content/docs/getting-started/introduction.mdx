@@ -1,0 +1,48 @@
+---
+title: Introduction
+description: What ctk is, why it exists, and how it compares to alternatives
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+**ctk** (Confluence Toolkit) is a single Go binary that serves as both a
+command-line interface and an MCP (Model Context Protocol) server for
+**Confluence Cloud**.
+
+## Why ctk?
+
+ctk follows the Unix philosophy: **one tool, one job**. Where jtk handles Jira,
+ctk handles Confluence. Each is a standalone binary with its own credentials,
+its own MCP tools, and its own release cycle. No monoliths.
+
+## Key Features
+
+- **Dual mode** -- CLI for humans, MCP server for AI agents
+- **Storage format conversion** -- XHTML to markdown on the fly for LLM consumption
+- **Folder support** -- list, create, navigate, and delete Confluence Cloud folders
+- **Page diffing** -- unified diff between any two page versions
+- **Inline comments** -- read inline and footer comments with highlighted text
+- **Attachments** -- list and download page attachments
+- **CQL search** -- full Confluence Query Language plus quick text search
+- **Write gating** -- destructive operations are off by default (`CTK_ENABLE_WRITES`)
+- **Rate limiting** -- built-in token-bucket limiter (20 req/min) to stay under Confluence API limits
+
+## Comparison
+
+| Feature | ctk | sooperset | aashari | aaronsb |
+|---|---|---|---|---|
+| Folders | Yes | No | No | No |
+| Page diff | Yes | No | No | No |
+| Inline comments | Yes | No | No | No |
+| Attachments | Yes | No | Yes | No |
+| Labels | Yes | No | No | No |
+| Storage format to markdown | Yes | No | No | No |
+| Write gating | Yes | No | No | No |
+| CLI mode | Yes | No | No | No |
+| Response flattening | Yes | Partial | No | No |
+| Rate limiter | Yes | No | No | No |
+
+<Aside type="tip">
+ctk uses the Confluence Cloud V2 REST API with a V1 fallback for CQL search
+(the V2 API does not expose a CQL endpoint).
+</Aside>

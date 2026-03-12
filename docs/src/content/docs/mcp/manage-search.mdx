@@ -1,0 +1,96 @@
+---
+title: manage_search
+description: MCP tool for Confluence search operations
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Unified tool for searching Confluence with CQL or quick text search.
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | `cql` or `quick` |
+| `cql` | string | For `cql` | CQL query string |
+| `query` | string | For `quick` | Text to search for |
+| `limit` | int | No | Number of results (default 25) |
+| `start` | int | No | Starting offset for pagination |
+| `include_archived_spaces` | bool | No | Include archived spaces |
+
+## Actions
+
+### `cql`
+
+Search using Confluence Query Language. This uses the V1 REST API (the V2 API
+does not expose CQL search).
+
+**Required:** `cql`
+
+```json
+{
+  "action": "cql",
+  "cql": "type=page AND space=DEV AND title~'architecture'",
+  "limit": 10
+}
+```
+
+Response:
+
+```json
+{
+  "results": [
+    {
+      "title": "Architecture Overview",
+      "excerpt": "System architecture and design principles...",
+      "type": "page",
+      "content_id": "12345678",
+      "space_key": "DEV",
+      "url": "/wiki/spaces/DEV/pages/12345678"
+    }
+  ],
+  "total_size": 1,
+  "start": 0,
+  "limit": 10
+}
+```
+
+### `quick`
+
+Quick text search across titles and content.
+
+**Required:** `query`
+
+```json
+{
+  "action": "quick",
+  "query": "migration guide",
+  "limit": 5
+}
+```
+
+Response:
+
+```json
+{
+  "results": [
+    {
+      "title": "Database Migration Guide",
+      "excerpt": "Step-by-step guide for database migrations...",
+      "type": "page",
+      "content_id": "12345679",
+      "space_key": "DEV"
+    }
+  ],
+  "total_size": 1
+}
+```
+
+<Aside type="tip">
+CQL is more powerful and supports filtering by space, label, type, date, and
+more. Use quick search when you just need to find something by text.
+</Aside>
+
+<Aside type="note">
+This tool is read-only. No write gating applies.
+</Aside>
