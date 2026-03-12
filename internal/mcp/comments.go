@@ -12,7 +12,7 @@ type ManageCommentsArgs struct {
 	Action    string `json:"action" jsonschema:"Action to perform: 'list_footer', 'list_inline', 'get_replies', 'add_footer', 'reply'" jsonschema_enum:"list_footer,list_inline,get_replies,add_footer,reply"`
 	PageID    string `json:"page_id,omitempty" jsonschema:"Page ID (required for list_footer, list_inline, add_footer)"`
 	CommentID string `json:"comment_id,omitempty" jsonschema:"Comment ID (required for get_replies, reply)"`
-	Body      string `json:"body,omitempty" jsonschema:"Comment body in Confluence storage format (required for add_footer, reply)"`
+	Body      string `json:"body,omitempty" jsonschema:"Comment body in Confluence storage format (required for add_footer, reply). Use HTML tags: <p> for paragraphs, <a href=''> for links. Example: '<p>See <a href=\"https://example.com\">this page</a></p>'"`
 	Limit     int    `json:"limit,omitempty" jsonschema:"Number of results per page (default 25)"`
 	Cursor    string `json:"cursor,omitempty" jsonschema:"Pagination cursor for next page"`
 }

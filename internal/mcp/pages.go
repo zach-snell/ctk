@@ -13,7 +13,7 @@ type ManagePagesArgs struct {
 	PageID         string `json:"page_id,omitempty" jsonschema:"Page ID (required for get, update, delete, get_children, get_ancestors, move, diff)"`
 	SpaceID        string `json:"space_id,omitempty" jsonschema:"Space ID (required for list, create, get_by_title)"`
 	Title          string `json:"title,omitempty" jsonschema:"Page title (required for create, get_by_title; optional for update)"`
-	Body           string `json:"body,omitempty" jsonschema:"Page body in Confluence storage format (XHTML) (for create, update)"`
+	Body           string `json:"body,omitempty" jsonschema:"Page body in Confluence storage format (XHTML) (for create, update). Use HTML tags: <p> for paragraphs, <h2>/<h3> for headings, <ul>/<li> for lists, <a href=''> for links, <table> for tables, <code> for inline code."`
 	ParentID       string `json:"parent_id,omitempty" jsonschema:"Parent page ID (for create)"`
 	Version        int    `json:"version,omitempty" jsonschema:"Page version number (required for update, move — must be current version + 1)"`
 	Status         string `json:"status,omitempty" jsonschema:"Page status: 'current', 'draft' (for create, update, list filter)"`
