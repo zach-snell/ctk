@@ -80,6 +80,7 @@ func (c *Client) AddFooterComment(pageID, body string) (*Comment, error) {
 	}
 
 	req := CreateCommentRequest{
+		PageID: pageID,
 		Body: &PageBody{
 			Storage: &BodyRepresentation{
 				Representation: "storage",
@@ -88,7 +89,7 @@ func (c *Client) AddFooterComment(pageID, body string) (*Comment, error) {
 		},
 	}
 
-	path := fmt.Sprintf("/wiki/api/v2/pages/%s/footer-comments", url.PathEscape(pageID))
+	path := "/wiki/api/v2/footer-comments"
 	data, err := c.Post(path, req)
 	if err != nil {
 		return nil, err

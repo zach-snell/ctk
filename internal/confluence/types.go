@@ -234,7 +234,8 @@ type InlineCommentProperties struct {
 
 // CreateCommentRequest is the body for creating a footer comment or reply.
 type CreateCommentRequest struct {
-	Body *PageBody `json:"body"`
+	PageID string    `json:"pageId,omitempty"`
+	Body   *PageBody `json:"body"`
 }
 
 // MovePageRequest is the body for moving a page (updating its parent/space).
