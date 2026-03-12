@@ -116,13 +116,19 @@ type SearchResult struct {
 
 // SearchResultItem is a single item in a search result.
 type SearchResultItem struct {
-	Content         *SearchContent `json:"content,omitempty"`
-	Title           string         `json:"title"`
-	Excerpt         string         `json:"excerpt"`
-	URL             string         `json:"url"`
-	ResultGlobalRef string         `json:"resultGlobalContainer,omitempty"`
-	EntityType      string         `json:"entityType,omitempty"`
-	LastModified    string         `json:"lastModified,omitempty"`
+	Content               *SearchContent   `json:"content,omitempty"`
+	Title                 string           `json:"title"`
+	Excerpt               string           `json:"excerpt"`
+	URL                   string           `json:"url"`
+	ResultGlobalContainer *GlobalContainer `json:"resultGlobalContainer,omitempty"`
+	EntityType            string           `json:"entityType,omitempty"`
+	LastModified          string           `json:"lastModified,omitempty"`
+}
+
+// GlobalContainer represents the space/container context for a search result.
+type GlobalContainer struct {
+	Title      string `json:"title"`
+	DisplayURL string `json:"displayUrl"`
 }
 
 // SearchContent is the content inside a search result item.
