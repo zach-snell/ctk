@@ -13,7 +13,7 @@ export default defineConfig({
 			plugins: [
 				starlightLlmsTxt({
 					projectName: 'ctk (Confluence Toolkit)',
-					description: 'A dual-mode Go CLI and MCP Server for Confluence Cloud. Provides 7 MCP tools with 30+ actions for spaces, pages, search, labels, folders, comments, and attachments. Features XHTML storage format to markdown conversion, page version diffing, inline comment reading, write gating, response flattening, and rate limiting. The only Confluence MCP with folder support and page diff.',
+					description: 'A dual-mode Go CLI and MCP Server for Confluence Cloud. Provides 8 MCP tools with 30+ actions for spaces, pages, search, labels, folders, comments, attachments, and users. Features XHTML storage format to markdown conversion, markdown-to-storage conversion, page version diffing, inline comment reading, write gating, response flattening, and rate limiting. The only Confluence MCP with folder support and page diff.',
 					customSets: [
 						{
 							label: 'MCP Tools',
@@ -65,8 +65,9 @@ export default defineConfig({
 						{ label: 'manage_labels', slug: 'mcp/manage-labels' },
 						{ label: 'manage_folders', slug: 'mcp/manage-folders' },
 						{ label: 'manage_comments', slug: 'mcp/manage-comments' },
-						{ label: 'manage_attachments', slug: 'mcp/manage-attachments' },
-					],
+					{ label: 'manage_attachments', slug: 'mcp/manage-attachments' },
+					{ label: 'manage_users', slug: 'mcp/manage-users' },
+				],
 				},
 				{
 					label: 'Guides',

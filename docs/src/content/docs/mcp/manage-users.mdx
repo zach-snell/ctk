@@ -1,0 +1,71 @@
+---
+title: manage_users
+description: MCP tool for searching and getting Confluence users.
+---
+
+Search and get Confluence users.
+
+## Actions
+
+| Action | Description | Required Params |
+|--------|-------------|-----------------|
+| `get_current` | Get the currently authenticated user | |
+| `search` | Search users by display name | `query` |
+
+## Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `action` | string | **Required.** `get_current` or `search` |
+| `query` | string | Search query — display name, email, etc. (for `search`) |
+| `limit` | int | Maximum results to return (for `search`, default 20) |
+
+## Examples
+
+### Get current user
+
+```json
+{
+  "action": "get_current"
+}
+```
+
+**Response:**
+
+```json
+{
+  "account_id": "5b10a2844c20165700ede21g",
+  "display_name": "Jane Doe",
+  "email": "jane.doe@example.com",
+  "account_type": "atlassian"
+}
+```
+
+### Search users
+
+```json
+{
+  "action": "search",
+  "query": "Jane"
+}
+```
+
+**Response:**
+
+```json
+{
+  "total": 2,
+  "users": [
+    {
+      "account_id": "5b10a2844c20165700ede21g",
+      "display_name": "Jane Doe",
+      "account_type": "atlassian"
+    },
+    {
+      "account_id": "5b10a2844c20165700ede22h",
+      "display_name": "Jane Smith",
+      "account_type": "atlassian"
+    }
+  ]
+}
+```

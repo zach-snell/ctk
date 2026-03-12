@@ -44,6 +44,8 @@ CTK_DISABLED_TOOLS="manage_comments,manage_attachments" ctk mcp
 
 ## Available Tools
 
+ctk registers 8 multiplexed tools. Each tool accepts an `action` parameter that determines the operation.
+
 <CardGrid>
   <LinkCard
     title="manage_spaces"
@@ -77,8 +79,13 @@ CTK_DISABLED_TOOLS="manage_comments,manage_attachments" ctk mcp
   />
   <LinkCard
     title="manage_attachments"
-    description="List and download page attachments"
+    description="List, download, upload, and delete page attachments"
     href="/ctk/mcp/manage-attachments/"
+  />
+  <LinkCard
+    title="manage_users"
+    description="Get current user and search users"
+    href="/ctk/mcp/manage-users/"
   />
 </CardGrid>
 

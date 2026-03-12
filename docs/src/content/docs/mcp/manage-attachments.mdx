@@ -1,29 +1,36 @@
 ---
 title: manage_attachments
-description: MCP tool for Confluence attachment operations
+description: MCP tool for Confluence attachment operations — list, download, upload, and delete.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Unified tool for listing and downloading Confluence page attachments.
-
-## Parameters
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `action` | string | Yes | `list` or `download` |
-| `page_id` | string | For `list` | Page ID |
-| `attachment_id` | string | For `download` | Attachment ID |
-| `limit` | int | No | Results per page (default 25) |
-| `cursor` | string | No | Pagination cursor |
+Unified tool for Confluence page attachment operations.
 
 ## Actions
 
-### `list`
+| Action | Description | Required Params | Write Gated |
+|--------|-------------|-----------------|-------------|
+| `list` | List all attachments on a page | `page_id` | No |
+| `download` | Download an attachment | `attachment_id` | No |
+| `upload` | Upload a file as an attachment | `page_id`, `file_path` | Yes |
+| `delete` | Delete an attachment | `attachment_id` | Yes |
 
-List all attachments on a page.
+## Parameters
 
-**Required:** `page_id`
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `action` | string | **Required.** `list`, `download`, `upload`, or `delete` |
+| `page_id` | string | Page ID (required for `list`, `upload`) |
+| `attachment_id` | string | Attachment ID (required for `download`, `delete`) |
+| `file_path` | string | Absolute path to the file to upload (required for `upload`). Note: paths refer to the MCP server's filesystem. In stdio mode this is the local machine. |
+| `comment` | string | Optional comment for the attachment (for `upload`) |
+| `limit` | int | Results per page (default 25) |
+| `cursor` | string | Pagination cursor for next page |
+
+## Examples
+
+### List attachments
 
 ```json
 {
@@ -32,7 +39,7 @@ List all attachments on a page.
 }
 ```
 
-Response:
+**Response:**
 
 ```json
 [
@@ -48,11 +55,7 @@ Response:
 ]
 ```
 
-### `download`
-
-Download an attachment to `/tmp/ctk-downloads/`.
-
-**Required:** `attachment_id`
+### Download an attachment
 
 ```json
 {
@@ -61,7 +64,7 @@ Download an attachment to `/tmp/ctk-downloads/`.
 }
 ```
 
-Response:
+**Response:**
 
 ```json
 {
@@ -72,7 +75,48 @@ Response:
 }
 ```
 
-<Aside type="note">
-This tool is read-only. Downloads are saved to `/tmp/ctk-downloads/`. No write
-gating applies.
+### Upload a file
+
+```json
+{
+  "action": "upload",
+  "page_id": "12345678",
+  "file_path": "/path/to/report.pdf",
+  "comment": "Q4 report"
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "att55443323",
+  "title": "report.pdf",
+  "media_type": "application/pdf",
+  "file_size": 51200,
+  "status": "uploaded"
+}
+```
+
+### Delete an attachment
+
+```json
+{
+  "action": "delete",
+  "attachment_id": "att55443322"
+}
+```
+
+**Response:**
+
+```
+Attachment deleted successfully
+```
+
+<Aside type="caution">
+Write actions (`upload`, `delete`) require `CTK_ENABLE_WRITES=true`. When writes are disabled (the default), these actions return an error.
+</Aside>
+
+<Aside type="tip">
+The `file_path` parameter refers to a path on the **MCP server's filesystem**. In stdio mode (e.g., Claude Desktop, opencode), this is your local machine. In HTTP Streamable mode, it refers to the server's filesystem.
 </Aside>
