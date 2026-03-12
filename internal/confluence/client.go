@@ -11,11 +11,14 @@ import (
 )
 
 // Client is the Confluence Cloud API HTTP client.
+// It supports both classic API tokens (Basic Auth, direct site URL)
+// and scoped/fine-grained tokens (Bearer Auth, Atlassian gateway URL).
 type Client struct {
-	http    *http.Client
-	baseURL string // e.g., "https://mycompany.atlassian.net"
-	email   string
-	token   string // API token for Basic Auth
+	http      *http.Client
+	baseURL   string // base URL for API calls (varies by token type)
+	email     string
+	token     string // API token
+	tokenType TokenType
 
 	rateLimiter *RateLimiter
 }
@@ -65,28 +68,78 @@ func (r *RateLimiter) Wait() error {
 	return nil
 }
 
-// NewClient creates a Confluence API client for the given domain.
+// NewClient creates a Confluence API client with classic auth (Basic Auth, direct site URL).
+// Use NewClientFromCredentials for automatic token type detection.
 func NewClient(domain, email, token string) *Client {
 	return &Client{
 		http: &http.Client{
 			Timeout: 30 * time.Second,
 		},
-		baseURL: fmt.Sprintf("https://%s.atlassian.net", domain),
-		email:   email,
-		token:   token,
+		baseURL:   fmt.Sprintf("https://%s.atlassian.net", domain),
+		email:     email,
+		token:     token,
+		tokenType: TokenTypeClassic,
 		// 20 requests per minute = 1 token every 3 seconds
 		rateLimiter: NewRateLimiter(20, 3*time.Second),
 	}
 }
 
+// NewScopedClient creates a Confluence API client for scoped/fine-grained tokens.
+// Uses Bearer auth against the Atlassian gateway URL.
+func NewScopedClient(cloudID, email, token string) *Client {
+	return &Client{
+		http: &http.Client{
+			Timeout: 30 * time.Second,
+		},
+		baseURL:     fmt.Sprintf("https://api.atlassian.com/ex/confluence/%s", cloudID),
+		email:       email,
+		token:       token,
+		tokenType:   TokenTypeScoped,
+		rateLimiter: NewRateLimiter(20, 3*time.Second),
+	}
+}
+
 // NewClientFromCredentials creates a client from stored credentials.
-func NewClientFromCredentials(creds *Credentials) *Client {
-	return NewClient(creds.Domain, creds.Email, creds.APIToken)
+// Automatically selects classic or scoped auth based on the stored token type.
+// If the type is not set, it probes both auth methods to auto-detect.
+func NewClientFromCredentials(creds *Credentials) (*Client, error) {
+	tokenType := creds.Type
+
+	// Auto-detect if type is not set (env vars without explicit type, old credentials)
+	if tokenType == "" {
+		detected, cloudID, err := ProbeTokenType(creds.Domain, creds.Email, creds.APIToken)
+		if err != nil {
+			return nil, fmt.Errorf("auto-detecting token type: %w", err)
+		}
+		tokenType = detected
+		if cloudID != "" {
+			creds.CloudID = cloudID
+		}
+	}
+
+	if tokenType == TokenTypeScoped {
+		cloudID := creds.CloudID
+		if cloudID == "" {
+			var err error
+			cloudID, err = FetchCloudID(creds.Domain)
+			if err != nil {
+				return nil, fmt.Errorf("scoped token requires cloud ID: %w", err)
+			}
+		}
+		return NewScopedClient(cloudID, creds.Email, creds.APIToken), nil
+	}
+
+	return NewClient(creds.Domain, creds.Email, creds.APIToken), nil
 }
 
 // BaseURL returns the base URL of the client (for testing/debugging).
 func (c *Client) BaseURL() string {
 	return c.baseURL
+}
+
+// TokenType returns the token type this client is using.
+func (c *Client) TokenType() TokenType {
+	return c.tokenType
 }
 
 // do executes an HTTP request with auth headers and rate limiting.
@@ -107,8 +160,14 @@ func (c *Client) do(method, path string, bodyData []byte, contentType string) (*
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
 
-	// Confluence Cloud uses Basic Auth (email:api_token)
-	req.SetBasicAuth(c.email, c.token)
+	// Apply auth based on token type
+	switch c.tokenType {
+	case TokenTypeScoped:
+		req.Header.Set("Authorization", "Bearer "+c.token)
+	default:
+		// Classic token uses Basic Auth (email:api_token)
+		req.SetBasicAuth(c.email, c.token)
+	}
 
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)

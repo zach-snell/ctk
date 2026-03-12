@@ -11,16 +11,20 @@ import (
 	"github.com/zach-snell/ctk/internal/version"
 )
 
-// New creates and configures the Confluence MCP server with all tools registered.
+// New creates and configures the Confluence MCP server with a classic-auth client.
+// Prefer NewFromCredentials for automatic token type detection.
 func New(domain, email, token string) *mcp.Server {
 	client := confluence.NewClient(domain, email, token)
 	return newServer(client)
 }
 
 // NewFromCredentials creates the MCP server from stored credentials.
-func NewFromCredentials(creds *confluence.Credentials) *mcp.Server {
-	client := confluence.NewClientFromCredentials(creds)
-	return newServer(client)
+func NewFromCredentials(creds *confluence.Credentials) (*mcp.Server, error) {
+	client, err := confluence.NewClientFromCredentials(creds)
+	if err != nil {
+		return nil, fmt.Errorf("creating client: %w", err)
+	}
+	return newServer(client), nil
 }
 
 func newServer(client *confluence.Client) *mcp.Server {

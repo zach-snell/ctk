@@ -75,7 +75,12 @@ func init() {
 func getClient() *confluence.Client {
 	// Check environment variables first
 	if envCreds := confluence.LoadCredentialsFromEnv(); envCreds != nil {
-		return confluence.NewClientFromCredentials(envCreds)
+		client, err := confluence.NewClientFromCredentials(envCreds)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating client: %v\n", err)
+			os.Exit(1)
+		}
+		return client
 	}
 
 	creds, err := confluence.LoadCredentials()
@@ -84,5 +89,10 @@ func getClient() *confluence.Client {
 		os.Exit(1)
 	}
 
-	return confluence.NewClientFromCredentials(creds)
+	client, err := confluence.NewClientFromCredentials(creds)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating client: %v\n", err)
+		os.Exit(1)
+	}
+	return client
 }

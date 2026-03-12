@@ -32,24 +32,26 @@ func init() {
 }
 
 func runServer() {
+	var creds *confluence.Credentials
+
 	// Priority: env vars > stored credentials
-	domain := os.Getenv("CONFLUENCE_DOMAIN")
-	email := os.Getenv("CONFLUENCE_EMAIL")
-	apiToken := os.Getenv("CONFLUENCE_API_TOKEN")
-
-	var s *mcp.Server
-
-	if domain != "" && email != "" && apiToken != "" {
-		s = mcpserver.New(domain, email, apiToken)
+	if envCreds := confluence.LoadCredentialsFromEnv(); envCreds != nil {
+		creds = envCreds
 	} else {
-		creds, err := confluence.LoadCredentials()
+		stored, err := confluence.LoadCredentials()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "No credentials found. Either:\n")
 			fmt.Fprintf(os.Stderr, "  1. Run: ctk auth\n")
 			fmt.Fprintf(os.Stderr, "  2. Set CONFLUENCE_DOMAIN + CONFLUENCE_EMAIL + CONFLUENCE_API_TOKEN env vars\n")
 			os.Exit(1)
 		}
-		s = mcpserver.NewFromCredentials(creds)
+		creds = stored
+	}
+
+	s, err := mcpserver.NewFromCredentials(creds)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error initializing MCP server: %v\n", err)
+		os.Exit(1)
 	}
 
 	if port != 0 {
