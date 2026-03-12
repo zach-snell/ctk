@@ -9,17 +9,19 @@ import (
 )
 
 type ManageSpacesArgs struct {
-	Action  string `json:"action" jsonschema:"Action to perform: 'list', 'get', 'get_by_key'" jsonschema_enum:"list,get,get_by_key"`
-	SpaceID string `json:"space_id,omitempty" jsonschema:"Space ID (required for 'get')"`
-	Key     string `json:"key,omitempty" jsonschema:"Space key (required for 'get_by_key')"`
-	Limit   int    `json:"limit,omitempty" jsonschema:"Number of results per page (default 25)"`
-	Cursor  string `json:"cursor,omitempty" jsonschema:"Pagination cursor for next page"`
-	Type    string `json:"type,omitempty" jsonschema:"Filter by type: 'global', 'personal'"`
-	Status  string `json:"status,omitempty" jsonschema:"Filter by status: 'current', 'archived'"`
+	Action      string `json:"action" jsonschema:"Action to perform: 'list', 'get', 'get_by_key', 'create'" jsonschema_enum:"list,get,get_by_key,create"`
+	SpaceID     string `json:"space_id,omitempty" jsonschema:"Space ID (required for 'get')"`
+	Key         string `json:"key,omitempty" jsonschema:"Space key (required for 'get_by_key', 'create')"`
+	Name        string `json:"name,omitempty" jsonschema:"Space name (required for 'create')"`
+	Description string `json:"description,omitempty" jsonschema:"Space description (for 'create')"`
+	Limit       int    `json:"limit,omitempty" jsonschema:"Number of results per page (default 25)"`
+	Cursor      string `json:"cursor,omitempty" jsonschema:"Pagination cursor for next page"`
+	Type        string `json:"type,omitempty" jsonschema:"Filter by type: 'global', 'personal'"`
+	Status      string `json:"status,omitempty" jsonschema:"Filter by status: 'current', 'archived'"`
 }
 
-// ManageSpacesHandler handles list and get operations for spaces.
-func ManageSpacesHandler(c *confluence.Client) func(context.Context, *mcp.CallToolRequest, ManageSpacesArgs) (*mcp.CallToolResult, any, error) {
+// ManageSpacesHandler handles list, get, and create operations for spaces.
+func ManageSpacesHandler(c *confluence.Client, canWrite bool) func(context.Context, *mcp.CallToolRequest, ManageSpacesArgs) (*mcp.CallToolResult, any, error) {
 	return func(ctx context.Context, req *mcp.CallToolRequest, args ManageSpacesArgs) (*mcp.CallToolResult, any, error) {
 		switch args.Action {
 		case "list":
@@ -58,8 +60,28 @@ func ManageSpacesHandler(c *confluence.Client) func(context.Context, *mcp.CallTo
 			}
 			return ToolResultText(confluence.SafeMarshal(confluence.FlattenSpace(space))), nil, nil
 
+		case "create":
+			if !canWrite {
+				return ToolResultError("write operations disabled: set CTK_ENABLE_WRITES=true to enable"), nil, nil
+			}
+			if args.Key == "" {
+				return ToolResultError("key is required for 'create' action"), nil, nil
+			}
+			if args.Name == "" {
+				return ToolResultError("name is required for 'create' action"), nil, nil
+			}
+			space, err := c.CreateSpace(confluence.CreateSpaceRequest{
+				Key:         args.Key,
+				Name:        args.Name,
+				Description: args.Description,
+			})
+			if err != nil {
+				return ToolResultError(fmt.Sprintf("failed to create space: %v", err)), nil, nil
+			}
+			return ToolResultText(confluence.SafeMarshal(confluence.FlattenSpace(space))), nil, nil
+
 		default:
-			return ToolResultError(fmt.Sprintf("unknown action: %s. Valid actions: list, get, get_by_key", args.Action)), nil, nil
+			return ToolResultError(fmt.Sprintf("unknown action: %s. Valid actions: list, get, get_by_key, create", args.Action)), nil, nil
 		}
 	}
 }

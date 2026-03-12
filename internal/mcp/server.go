@@ -60,10 +60,14 @@ func registerTools(s *mcp.Server, c *confluence.Client) {
 	canWrite := os.Getenv("CTK_ENABLE_WRITES") == "true"
 
 	// ─── Spaces ──────────────────────────────────────────────────────
+	spaceActions := "'list', 'get', 'get_by_key'"
+	if canWrite {
+		spaceActions += ", 'create'"
+	}
 	addTool(s, disabled, mcp.Tool{
 		Name:        "manage_spaces",
-		Description: fmt.Sprintf("Unified tool for listing and getting Confluence spaces. Write operations: %v", canWrite),
-	}, ManageSpacesHandler(c))
+		Description: fmt.Sprintf("Unified tool for listing and getting Confluence spaces. Actions: %s. Write operations: %v", spaceActions, canWrite),
+	}, ManageSpacesHandler(c, canWrite))
 
 	// ─── Pages ───────────────────────────────────────────────────────
 	addTool(s, disabled, mcp.Tool{

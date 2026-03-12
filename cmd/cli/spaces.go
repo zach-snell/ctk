@@ -65,10 +65,51 @@ var spacesGetCmd = &cobra.Command{
 	},
 }
 
+var spacesCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new Confluence space",
+	Run: func(cmd *cobra.Command, args []string) {
+		client := getClient()
+
+		key, _ := cmd.Flags().GetString("key")
+		name, _ := cmd.Flags().GetString("name")
+		description, _ := cmd.Flags().GetString("description")
+
+		if key == "" || name == "" {
+			fmt.Fprintf(os.Stderr, "Error: --key and --name are required\n")
+			os.Exit(1)
+		}
+
+		space, err := client.CreateSpace(confluence.CreateSpaceRequest{
+			Key:         key,
+			Name:        name,
+			Description: description,
+		})
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		PrintOrJSON(cmd, space, func() {
+			fmt.Printf("Created space %s: %s\n", space.Key, space.Name)
+			KV("ID", space.ID)
+			KV("Type", space.Type)
+			if space.HomepageID != "" {
+				KV("Homepage ID", space.HomepageID)
+			}
+		})
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(spacesCmd)
 	spacesCmd.AddCommand(spacesListCmd)
 	spacesCmd.AddCommand(spacesGetCmd)
+	spacesCmd.AddCommand(spacesCreateCmd)
+
+	spacesCreateCmd.Flags().String("key", "", "Space key (e.g. DEV)")
+	spacesCreateCmd.Flags().String("name", "", "Space name")
+	spacesCreateCmd.Flags().String("description", "", "Space description")
 }
 
 // getClient is a helper to instantiate the core Confluence API client.
