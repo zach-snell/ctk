@@ -74,7 +74,7 @@ var attachmentsDownloadCmd = &cobra.Command{
 			outFile = att.Title
 		}
 
-		if err := os.WriteFile(outFile, data, 0644); err != nil {
+		if err := os.WriteFile(outFile, data, 0o600); err != nil {
 			fmt.Fprintf(os.Stderr, "Error writing file: %v\n", err)
 			os.Exit(1)
 		}

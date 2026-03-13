@@ -497,7 +497,7 @@ func TestMarkdownToStorage_Golden(t *testing.T) {
 
 			goldenFile := strings.TrimSuffix(inputFile, ".md") + ".golden"
 			if *update {
-				if err := os.WriteFile(goldenFile, []byte(got), 0644); err != nil {
+				if err := os.WriteFile(goldenFile, []byte(got), 0o644); err != nil {
 					t.Fatal(err)
 				}
 				return
@@ -570,15 +570,8 @@ func FuzzMarkdownToStorage(f *testing.F) {
 		}
 
 		// Property: non-empty input with visible content should produce non-empty output.
-		if strings.TrimSpace(input) != "" && got == "" {
-			// This can legitimately happen if input is only whitespace lines,
-			// but if there's real content, output should exist.
-			trimmed := strings.TrimSpace(strings.ReplaceAll(input, `\n`, "\n"))
-			if trimmed != "" {
-				// Only flag if there's actually visible text after normalization.
-				// Some edge cases (e.g., only newlines) legitimately produce "".
-			}
-		}
+		// Some edge cases (e.g., only whitespace or newlines) legitimately produce "".
+		// We intentionally do not flag these.
 
 		// Property: output should not contain raw \r characters.
 		if strings.Contains(got, "\r") {

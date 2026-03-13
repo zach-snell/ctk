@@ -1,0 +1,56 @@
+---
+title: ctk attachments
+description: Manage attachments on Confluence pages from the CLI
+---
+
+## Subcommands
+
+### `ctk attachments list [page-id]`
+
+List all attachments on a page.
+
+```bash
+ctk attachments list 12345678
+```
+
+Output:
+
+```
+ID            Title                    Media Type               Size
+───────────────────────────────────────────────────────────────────────
+att98765401   diagram.png              image/png                245 KB
+att98765402   design-spec.pdf          application/pdf          1.2 MB
+att98765403   notes.txt                text/plain               4 KB
+
+Showing 3 attachments
+```
+
+### `ctk attachments download [attachment-id]`
+
+Download an attachment by its ID.
+
+```bash
+ctk attachments download att98765401
+ctk attachments download att98765401 --output ./downloads/diagram.png
+```
+
+Output:
+
+```
+Downloaded diagram.png (245 KB) -> ./diagram.png
+```
+
+## Flags
+
+| Flag | Short | Description |
+|---|---|---|
+| `--output` | `-o` | File path to save the downloaded attachment |
+| `--json` | | Output raw JSON response |
+
+## JSON Output
+
+All commands support `--json`:
+
+```bash
+ctk attachments list 12345678 --json
+```

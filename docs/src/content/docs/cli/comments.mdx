@@ -1,0 +1,59 @@
+---
+title: ctk comments
+description: List comments on Confluence pages from the CLI
+---
+
+## Subcommands
+
+### `ctk comments list [page-id]`
+
+List footer comments on a page.
+
+```bash
+ctk comments list 12345678
+```
+
+Output:
+
+```
+ID            Author                   Created                  Excerpt
+──────────────────────────────────────────────────────────────────────────
+cmt00001      5b10ac8d82e05b22cc7d4ef5 2025-03-01T10:00:00Z     Looks good, approved!
+cmt00002      5b10ac8d82e05b22cc7d4ef6 2025-03-02T14:30:00Z     Updated the diagrams.
+
+Showing 2 comments
+```
+
+### `ctk comments list [page-id] --inline`
+
+List inline comments on a page.
+
+```bash
+ctk comments list 12345678 --inline
+```
+
+Output:
+
+```
+ID            Author                   Created                  Excerpt
+──────────────────────────────────────────────────────────────────────────
+cmt00003      5b10ac8d82e05b22cc7d4ef5 2025-03-01T11:00:00Z     Typo in this section.
+cmt00004      5b10ac8d82e05b22cc7d4ef6 2025-03-03T09:15:00Z     Can we add more detail here?
+
+Showing 2 inline comments
+```
+
+## Flags
+
+| Flag | Description |
+|---|---|
+| `--inline` | List inline comments instead of footer comments |
+| `--json` | Output raw JSON response |
+
+## JSON Output
+
+All commands support `--json`:
+
+```bash
+ctk comments list 12345678 --json
+```

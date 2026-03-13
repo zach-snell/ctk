@@ -1,0 +1,61 @@
+---
+title: ctk labels
+description: Manage labels on Confluence pages from the CLI
+---
+
+## Subcommands
+
+### `ctk labels list [page-id]`
+
+List all labels on a page.
+
+```bash
+ctk labels list 12345678
+```
+
+Output:
+
+```
+Labels for page 12345678:
+  architecture
+  important
+  reviewed
+
+3 labels
+```
+
+### `ctk labels add [page-id] [label]`
+
+Add a label to a page.
+
+```bash
+ctk labels add 12345678 important
+```
+
+Output:
+
+```
+Added label "important" to page 12345678
+```
+
+### `ctk labels remove [page-id] [label]`
+
+Remove a label from a page.
+
+```bash
+ctk labels remove 12345678 outdated
+```
+
+Output:
+
+```
+Removed label "outdated" from page 12345678
+```
+
+## JSON Output
+
+All commands support `--json`:
+
+```bash
+ctk labels list 12345678 --json
+```

@@ -55,6 +55,10 @@ export default defineConfig({
 						{ label: 'ctk pages', slug: 'cli/pages' },
 						{ label: 'ctk folders', slug: 'cli/folders' },
 						{ label: 'ctk search', slug: 'cli/search' },
+						{ label: 'ctk labels', slug: 'cli/labels' },
+						{ label: 'ctk attachments', slug: 'cli/attachments' },
+						{ label: 'ctk users', slug: 'cli/users' },
+						{ label: 'ctk comments', slug: 'cli/comments' },
 					],
 				},
 				{

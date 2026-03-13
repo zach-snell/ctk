@@ -1,0 +1,59 @@
+---
+title: ctk users
+description: Look up Confluence users from the CLI
+---
+
+## Subcommands
+
+### `ctk users me`
+
+Get the currently authenticated user.
+
+```bash
+ctk users me
+```
+
+Output:
+
+```
+User: Jane Smith
+  Account ID:  5b10ac8d82e05b22cc7d4ef5
+  Email:       jane.smith@example.com
+  Type:        atlassian
+```
+
+### `ctk users search [query]`
+
+Search for users by name or email.
+
+```bash
+ctk users search "jane"
+ctk users search "jane" --max 5
+```
+
+Output:
+
+```
+Account ID                        Name              Type
+──────────────────────────────────────────────────────────
+5b10ac8d82e05b22cc7d4ef5          Jane Smith        atlassian
+5b10ac8d82e05b22cc7d4ef6          Jane Doe          atlassian
+
+Showing 2 users
+```
+
+## Flags
+
+| Flag | Description |
+|---|---|
+| `--max` | Maximum number of results to return |
+| `--json` | Output raw JSON response |
+
+## JSON Output
+
+All commands support `--json`:
+
+```bash
+ctk users me --json
+ctk users search "jane" --json
+```
