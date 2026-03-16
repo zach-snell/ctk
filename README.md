@@ -9,6 +9,8 @@ The most comprehensive dedicated Confluence MCP server in the open-source ecosys
 
 **8 MCP tools · Full CLI · Write gating · Single binary · Zero dependencies**
 
+[![ctk MCP server](https://glama.ai/mcp/servers/zach-snell/ctk/badges/card.svg)](https://glama.ai/mcp/servers/zach-snell/ctk)
+
 ## Why ctk?
 
 | | ctk | mcp-atlassian (Python) |
