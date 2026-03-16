@@ -13,7 +13,10 @@ import (
 	mcpserver "github.com/zach-snell/ctk/internal/mcp"
 )
 
-var port int
+var (
+	port   int
+	noAuth bool
+)
 
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
@@ -29,29 +32,37 @@ run it using the HTTP Streamable transport.`,
 func init() {
 	RootCmd.AddCommand(mcpCmd)
 	mcpCmd.Flags().IntVarP(&port, "port", "p", 0, "Port to listen on for HTTP Streamable transport")
+	mcpCmd.Flags().BoolVar(&noAuth, "no-auth", false, "Start server without authentication (tools will return auth-required errors when called)")
 }
 
 func runServer() {
-	var creds *confluence.Credentials
+	var s *mcp.Server
 
-	// Priority: env vars > stored credentials
-	if envCreds := confluence.LoadCredentialsFromEnv(); envCreds != nil {
-		creds = envCreds
+	if noAuth {
+		s = mcpserver.NewUnauthenticated()
 	} else {
-		stored, err := confluence.LoadCredentials()
+		var creds *confluence.Credentials
+
+		// Priority: env vars > stored credentials
+		if envCreds := confluence.LoadCredentialsFromEnv(); envCreds != nil {
+			creds = envCreds
+		} else {
+			stored, err := confluence.LoadCredentials()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "No credentials found. Either:\n")
+				fmt.Fprintf(os.Stderr, "  1. Run: ctk auth\n")
+				fmt.Fprintf(os.Stderr, "  2. Set CONFLUENCE_DOMAIN + CONFLUENCE_EMAIL + CONFLUENCE_API_TOKEN env vars\n")
+				os.Exit(1)
+			}
+			creds = stored
+		}
+
+		var err error
+		s, err = mcpserver.NewFromCredentials(creds)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "No credentials found. Either:\n")
-			fmt.Fprintf(os.Stderr, "  1. Run: ctk auth\n")
-			fmt.Fprintf(os.Stderr, "  2. Set CONFLUENCE_DOMAIN + CONFLUENCE_EMAIL + CONFLUENCE_API_TOKEN env vars\n")
+			fmt.Fprintf(os.Stderr, "Error initializing MCP server: %v\n", err)
 			os.Exit(1)
 		}
-		creds = stored
-	}
-
-	s, err := mcpserver.NewFromCredentials(creds)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error initializing MCP server: %v\n", err)
-		os.Exit(1)
 	}
 
 	if port != 0 {
